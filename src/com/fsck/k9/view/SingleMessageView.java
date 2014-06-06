@@ -121,7 +121,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
                 OnMenuItemClickListener listener = new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                         + ": item " + item);
                         switch (item.getItemId()) {
                             case MENU_ITEM_LINK_VIEW: {
@@ -170,7 +170,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
                 OnMenuItemClickListener listener = new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                         + ": item " + item);
                         switch (item.getItemId()) {
                             case MENU_ITEM_IMAGE_VIEW: {
@@ -224,7 +224,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
                 OnMenuItemClickListener listener = new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                         + ": item " + item);
                         switch (item.getItemId()) {
                             case MENU_ITEM_PHONE_CALL: {
@@ -271,7 +271,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
                 OnMenuItemClickListener listener = new OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                         + ": item " + item);
                         switch (item.getItemId()) {
                             case MENU_ITEM_EMAIL_SEND: {
@@ -326,7 +326,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
 /*
     @Override
     public void onClick(View view) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
             + ": ERROR ENTERING");*/
 
     /*    if (view.getId() == R.id.show_hidden_attachments) {
@@ -405,7 +405,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
      *               false, otherwise.
      */
     public void setLoadPictures(boolean enable) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": value " + enable);
         mMessageContentView.blockNetworkData(!enable);
         setShowPictures(enable);
@@ -417,17 +417,17 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
     }
 
     public void showShowPicturesAction(boolean show) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": show " + show);
         mShowPicturesAction.setVisibility(show ? View.VISIBLE : View.GONE);
     }
     public void showShowMessageAction(boolean show) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": show " + show);
         mShowMessageAction.setVisibility(show ? View.VISIBLE : View.GONE);
     }
     public void showShowAttachmentsAction(boolean show) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": show " + show);
         mShowAttachmentsAction.setVisibility(show ? View.VISIBLE : View.GONE);
     }
@@ -443,20 +443,30 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
     }
 
     public void setDefaultHeaders() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mHeaderContainer.populateDefault();
         mHeaderContainer.setVisibility(View.VISIBLE);
     }
 
+    public void setHeaders(final String subject, final String from, final String to, final long date, boolean isFlagged) {
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        try {
+            mHeaderContainer.setVisibility(View.VISIBLE);
+
+        } catch (Exception me) {
+            if (DEBUG) Log.d(K9.LOG_TAG, "setHeaders - error", me);
+        }
+    }
+
     public void setHeaders(final Message message, Account account) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         try {
             mHeaderContainer.populate(message, account);
             mHeaderContainer.setVisibility(View.VISIBLE);
 
 
         } catch (Exception me) {
-            Log.e(K9.LOG_TAG, "setHeaders - error", me);
+            if (DEBUG) Log.d(K9.LOG_TAG, "setHeaders - error", me);
         }
     }
 
@@ -476,7 +486,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
         mHasAttachments = hasAttachments;
 
         if (mHasAttachments) {
-            Log.e("DIMA","implement attachments loading if need. Otherwise - remove");
+            if (DEBUG) Log.d("DIMA","implement attachments loading if need. Otherwise - remove");
           //  renderAttachments(message, 0, message, account, controller, listener);
         }
 
@@ -534,13 +544,13 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
     }
 
     private void loadBodyFromText(String emailText) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": emailText '" + emailText + "'");
         mMessageContentView.setText(emailText);
     }
 
     public void zoom(KeyEvent event) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": event shift pressed " + event.isShiftPressed());
 
         if (event.isShiftPressed()) {
@@ -555,15 +565,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
     }
 
     public void resetView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-
-        /*
-         * Clear the WebView content
-         *
-         * For some reason WebView.clearView() doesn't clear the contents when the WebView changes
-         * its size because the button to download the complete message was previously shown and
-         * is now hidden.
-         */
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         loadBodyFromText("");
     }
 
@@ -573,7 +575,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
 
     public void setAttachmentCallback(
         AttachmentView.AttachmentFileDownloadCallback attachmentCallback) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": ERROR ENTERING");
         /*
         this.attachmentCallback = attachmentCallback;
@@ -612,7 +614,7 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
 
     @Override
     public void onLayoutChanged() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessageContentView != null) {
             mMessageContentView.invalidate();
         }

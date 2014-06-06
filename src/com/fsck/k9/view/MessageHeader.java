@@ -226,9 +226,6 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
     }
 
     public void populateDefault() {
-        final CharSequence from = "from_default";
-        final CharSequence to = "to_default";
-        final CharSequence cc = "cc_default";
 
         mContactBadge.setVisibility(View.VISIBLE);
 
@@ -246,35 +243,79 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
                         | DateUtils.FORMAT_SHOW_YEAR);
         mDateView.setText(dateTime);
 
-        /*if (K9.showContactPicture()) {
-            if (counterpartyAddress != null) {
-                mContactBadge.assignContactFromEmail(counterpartyAddress.getAddress(), true);
-                mContactsPictureLoader.loadContactPicture(counterpartyAddress, mContactBadge);
-            } else {*/
-                mContactBadge.setImageResource(R.drawable.ic_contact_picture);
-        /*    }
-        }*/
+        mContactBadge.setImageResource(R.drawable.ic_contact_picture);
 
         mFromView.setText(from);
 
         updateAddressField(mToView, to, mToLabel);
-        updateAddressField(mCcView, cc, mCcLabel);
-        mAnsweredIcon.setVisibility(/*message.isSet(Flag.ANSWERED) ? */View.VISIBLE/* : View.GONE*/);
-        mForwardedIcon.setVisibility(/*message.isSet(Flag.FORWARDED) ?*/ View.VISIBLE/* : View.GONE*/);
+        //DIMA TODO: add showing if message answered\forwarded if need
+        //updateAddressField(mCcView, cc, mCcLabel);
+        mAnsweredIcon.setVisibility(/*View.VISIBLE*/View.GONE);
+        mForwardedIcon.setVisibility(/*View.VISIBLE*/View.GONE);
+        //DIMA TODO: add currect checking flag
         mFlagged.setChecked(true/*message.isSet(Flag.FLAGGED)*/);
 
         mChip.setBackgroundColor(Color.WHITE/*mAccount.getChipColor()*/);
 
         setVisibility(View.VISIBLE);
 
-       /* if (mSavedState != null) {
-            if (mSavedState.additionalHeadersVisible) {*/
+        showAdditionalHeaders();
+    }
+
+    public void polulate(final String subject, final String from, final String to, final long date, final boolean isFlagged) {
+        mSubjectView.setVisibility(VISIBLE);
+
+        if (K9.showContactPicture()) {
+            mContactBadge.setVisibility(View.VISIBLE);
+            mContactsPictureLoader = ContactPicture.getContactPictureLoader(mContext);
+        }  else {
+            mContactBadge.setVisibility(View.GONE);
+        }
+
+        if (StringUtils.isNullOrEmpty(subject)) {
+            mSubjectView.setText(mContext.getText(R.string.general_no_subject));
+        } else {
+            mSubjectView.setText(subject);
+        }
+        mSubjectView.setTextColor(0xff000000 | defaultSubjectColor);
+
+        String dateTime = DateUtils.formatDateTime(mContext,
+                date,
+                DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_ABBREV_ALL
+                        | DateUtils.FORMAT_SHOW_TIME
+                        | DateUtils.FORMAT_SHOW_YEAR);
+        mDateView.setText(dateTime);
+
+        if (K9.showContactPicture()) {
+            if (counterpartyAddress != null) {
+                mContactBadge.assignContactFromEmail(counterpartyAddress.getAddress(), true);
+                mContactsPictureLoader.loadContactPicture(counterpartyAddress, mContactBadge);
+            } else {
+                mContactBadge.setImageResource(R.drawable.ic_contact_picture);
+            }
+        }
+
+        mFromView.setText(from);
+
+        updateAddressField(mToView, to, mToLabel);
+        updateAddressField(mCcView, cc, mCcLabel);
+        mAnsweredIcon.setVisibility(message.isSet(Flag.ANSWERED) ? View.VISIBLE : View.GONE);
+        mForwardedIcon.setVisibility(message.isSet(Flag.FORWARDED) ? View.VISIBLE : View.GONE);
+        mFlagged.setChecked(message.isSet(Flag.FLAGGED));
+
+        mChip.setBackgroundColor(mAccount.getChipColor());
+
+        setVisibility(View.VISIBLE);
+
+        if (mSavedState != null) {
+            if (mSavedState.additionalHeadersVisible) {
                 showAdditionalHeaders();
-        /*    }
+            }
             mSavedState = null;
         } else {
             hideAdditionalHeaders();
-        }*/
+        }
     }
 
     public void populate(final Message message, final Account account) throws MessagingException {

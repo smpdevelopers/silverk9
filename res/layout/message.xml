@@ -25,56 +25,9 @@
 	            android:id="@+id/message_content"
 	            android:layout_height="wrap_content"
 	            android:layout_width="fill_parent"/>
-
-            <!--
-	        <com.fsck.k9.view.AccessibleWebView
-	            android:id="@+id/accessible_message_content"
-	            android:layout_height="wrap_content"
-	            android:layout_width="fill_parent"/>
-	        -->
-
-	        <!-- Attachments area -->
-
-            <!--
-	        <LinearLayout
-	            android:id="@+id/attachments_container"
-	            android:orientation="vertical"
-	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content">
-	
-	            <LinearLayout
-	                android:id="@+id/attachments"
-	                android:orientation="vertical"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:padding="4dip" />
-	
-	            <Button
-	                android:id="@+id/show_hidden_attachments"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:text="@string/message_view_show_more_attachments_action"/>
-	
-	            <LinearLayout
-	                android:id="@+id/hidden_attachments"
-	                android:orientation="vertical"
-	                android:layout_width="fill_parent"
-	                android:layout_height="wrap_content"
-	                android:padding="4dip"/>
-	
-	        </LinearLayout>
-	        -->
 	        
 	    </LinearLayout>
-	
-    </com.fsck.k9.view.NonLockingScrollView>
 
-    <!--
-    <Button android:id="@+id/download_remainder"
-        android:text="@string/message_view_download_remainder"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_width="fill_parent"/>
-    -->
+    </com.fsck.k9.view.NonLockingScrollView>
 
 </com.fsck.k9.view.SingleMessageView>

@@ -38,7 +38,7 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
     private static final String ARG_MSG_ID = "_id";
 
     public static MessageViewFragment newInstance(Integer msgId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": msgId " + msgId);
         MessageViewFragment fragment = new MessageViewFragment();
 
@@ -124,7 +124,7 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         mContext = activity.getApplicationContext();
 
@@ -139,7 +139,7 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": savedInstance " + savedInstanceState);
 
         // This fragments adds options to the action bar
@@ -151,48 +151,13 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         Context context = new ContextThemeWrapper(inflater.getContext(),
                 K9.getK9ThemeResourceId(K9.getK9MessageViewTheme()));
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = mLayoutInflater.inflate(R.layout.message, container, false);
 
         mMessageView = (SingleMessageView) view.findViewById(R.id.message_view);
-
-        //set a callback for the attachment view. With this callback the attachmentview
-        //request the start of a filebrowser activity.
-        /*mMessageView.setAttachmentCallback(new AttachmentFileDownloadCallback() {
-
-            @Override
-            public void showFileBrowser(final AttachmentView caller) {
-                if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-                + ": ERROR ENTERING");
-                FileBrowserHelper.getInstance()
-                .showFileBrowserActivity(MessageViewFragment.this,
-                                         null,
-                                         ACTIVITY_CHOOSE_DIRECTORY,
-                                         callback);
-                attachmentTmpStore = caller;
-            }
-
-            FileBrowserFailOverCallback callback = new FileBrowserFailOverCallback() {
-
-                @Override
-                public void onPathEntered(String path) {
-                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-                    + ": ERROR ENTERING");
-                    //attachmentTmpStore.writeFile(new File(path));
-                }
-
-                @Override
-                public void onCancel() {
-                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-                            + ": ERROR ENTERING");
-                    // canceled, do nothing
-                }
-            };
-        });*/
-
         mMessageView.initialize(this);
 
         return view;
@@ -201,7 +166,7 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         Bundle args = getArguments();
         //MessageReference messageReference;
@@ -209,21 +174,9 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
 
         displayMessage(args.getInt(ARG_MSG_ID));
     }
-/*
-@Override
-public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    outState.putInt(ARG_MSG_ID, mMsgId);
-}
-*/
-/*
-public void displayMessage(MessageReference ref) {
-    displayMessage(ref, true);
-}*/
 
     private void displayMessage(Integer msgId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": msgId " + msgId);
         mMsgId = msgId;
 
@@ -231,11 +184,12 @@ public void displayMessage(MessageReference ref) {
         mMessageView.resetView();
         mMessageView.resetHeaderView();
 
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": set messages which should be shown!!!!!");
         String text = "<img src=\"http://www.w3schools.com/images/pulpit.jpg\" alt=\"Smiley face\" width=\"200\" height=\"200\">";
         mMessageView.showStatusMessage(text);
         mMessageView.setDefaultHeaders();
+        mMessageView.setHeaders();
        // if (subject == null || subject.equals("")) {
         displayMessageSubject(mContext.getString(R.string.general_no_subject));
       /*  } else {
@@ -244,7 +198,7 @@ public void displayMessage(MessageReference ref) {
         mMessageView.setOnFlagListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                 onToggleFlagged();
             }
         });
@@ -256,12 +210,12 @@ public void displayMessage(MessageReference ref) {
      * Called from UI thread when user select Delete
      */
     public void onDelete() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         showDialog(R.id.dialog_confirm_delete);
     }
 
     private void delete() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessage != null) {
             // Disable the delete button after it's tapped (to try to prevent
             // accidental clicks)
@@ -273,7 +227,7 @@ public void displayMessage(MessageReference ref) {
     }
 
     public void onRefile(String dstFolder) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*
         if (!mController.isMoveCapable(mAccount)) {
             return;
@@ -298,7 +252,7 @@ public void displayMessage(MessageReference ref) {
     }
 
     private void refileMessage(String dstFolder) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*
         String srcFolder = mMessageReference.folderName;
         Message messageToMove = mMessage;
@@ -308,20 +262,21 @@ public void displayMessage(MessageReference ref) {
     }
 
     public void onReply() {
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessage != null) {
             mFragmentListener.onReply(mMessage, null/*, mPgpData*/);
         }
     }
 
     public void onForward() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessage != null) {
             mFragmentListener.onForward(mMessage, null/*, mPgpData*/);
         }
     }
 
     public void onToggleFlagged() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*DIMA TODO: called in case star has been selected
         if (mMessage != null) {
             boolean newState = !mMessage.isSet(Flag.FLAGGED);
@@ -334,7 +289,7 @@ public void displayMessage(MessageReference ref) {
 
 /* DIMA TODO: does it called when folder must be change
     private void startRefileActivity(int activity) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         Intent intent = new Intent(getActivity(), ChooseFolder.class);
         intent.putExtra(ChooseFolder.EXTRA_ACCOUNT, mAccount.getUuid());
         intent.putExtra(ChooseFolder.EXTRA_CUR_FOLDER, mMessageReference.folderName);
@@ -346,7 +301,7 @@ public void displayMessage(MessageReference ref) {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         /*if (mAccount.getCryptoProvider().onDecryptActivityResult(this, requestCode, resultCode, data, mPgpData)) {
             return;
@@ -398,7 +353,7 @@ public void displayMessage(MessageReference ref) {
     }
 
     public void onToggleRead() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*
         if (mMessage != null) {
             mController.setFlag(mAccount, mMessage.getFolder().getName(),
@@ -414,7 +369,7 @@ public void displayMessage(MessageReference ref) {
 /*
     @Override
     public void onClick(View view) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": ERROR ENTERING");
 
         if (view.getId() == R.id.download) {
@@ -443,7 +398,7 @@ public void displayMessage(MessageReference ref) {
     }
 
     private void displayMessageSubject(String subject) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mFragmentListener != null) {
             mFragmentListener.displayMessageSubject(subject);
         }
@@ -475,7 +430,7 @@ public void displayMessage(MessageReference ref) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                     if (!clonedMessage.isSet(Flag.X_DOWNLOADED_FULL) &&
                             !clonedMessage.isSet(Flag.X_DOWNLOADED_PARTIAL)) {
                         String text = mContext.getString(R.string.message_view_downloading);
@@ -491,7 +446,7 @@ public void displayMessage(MessageReference ref) {
                     mMessageView.setOnFlagListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                             onToggleFlagged();
                         }
                     });
@@ -511,7 +466,7 @@ public void displayMessage(MessageReference ref) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                     /*
                     try {
                         mMessage = message;
@@ -605,7 +560,7 @@ public void displayMessage(MessageReference ref) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                     + ": ERROR ENTERING");
                     /*mMessageView.setAttachmentsEnabled(true);
                     removeDialog(R.id.dialog_attachment_progress);
@@ -641,7 +596,7 @@ public void displayMessage(MessageReference ref) {
  * Used by MessageOpenPgpView
  */
 /*public void setMessageWithOpenPgp(String decryptedData, OpenPgpSignatureResult signatureResult) {
-    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
     try {
         // TODO: get rid of PgpData?
@@ -650,7 +605,7 @@ public void displayMessage(MessageReference ref) {
         data.setSignatureResult(signatureResult);
         mMessageView.setMessage(mAccount, (LocalMessage) mMessage, data, mController, mListener);
     } catch (MessagingException e) {
-        Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
+        if (DEBUG) Log.d(K9.LOG_TAG, "displayMessageBody failed", e);
     }
 
 }
@@ -666,13 +621,13 @@ public void onDecryptDone(PgpData pgpData) {
     try {
         mMessageView.setMessage(account, message, pgpData, controller, listener);
     } catch (MessagingException e) {
-        Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
+        if (DEBUG) Log.d(K9.LOG_TAG, "displayMessageBody failed", e);
     }
 }
 */
 
     private void showDialog(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         DialogFragment fragment;
 
         if (dialogId == R.id.dialog_confirm_delete) {
@@ -706,7 +661,7 @@ public void onDecryptDone(PgpData pgpData) {
     }
 
     private void removeDialog(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentManager fm = getFragmentManager();
 
         if (fm == null || isRemoving() || isDetached()) {
@@ -726,18 +681,18 @@ public void onDecryptDone(PgpData pgpData) {
     }
 
     private String getDialogTag(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return String.format(Locale.US, "dialog-%d", dialogId);
     }
 
     public void zoom(KeyEvent event) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mMessageView.zoom(event);
     }
 
     @Override
     public void doPositiveClick(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (dialogId == R.id.dialog_confirm_delete) {
             delete();
         }
@@ -745,13 +700,13 @@ public void onDecryptDone(PgpData pgpData) {
 
     @Override
     public void doNegativeClick(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /* do nothing */
     }
 
     @Override
     public void dialogCancelled(int dialogId) {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /* do nothing */
     }
 
@@ -763,28 +718,28 @@ public void onDecryptDone(PgpData pgpData) {
     }
 
     public boolean isMessageRead() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (mMessage != null) ? mMessage.isSet(Flag.SEEN) : false;
     }
 /*
     public boolean isCopyCapable() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; //mController.isCopyCapable(mAccount);
     }
 
     public boolean isMoveCapable() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; //mController.isMoveCapable(mAccount);
     }
 
     public boolean canMessageBeArchived() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (!mMessageReference.folderName.equals(mAccount.getArchiveFolderName())
                 && mAccount.hasArchiveFolder());
     }
 
     public boolean canMessageBeMovedToSpam() {
-        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (!mMessageReference.folderName.equals(mAccount.getSpamFolderName())
                 && mAccount.hasSpamFolder());
     }

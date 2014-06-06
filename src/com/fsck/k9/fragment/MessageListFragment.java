@@ -36,8 +36,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.fsck.k9.Account;
 import com.fsck.k9.FontSizes;
@@ -56,12 +54,10 @@ import com.fsck.k9.helper.Utility;
 import com.fsck.k9.mail.Flag;
 import com.fsck.k9.mail.Folder;
 import com.fsck.k9.mail.Message;
-import com.fsck.k9.provider.EmailProvider;
 import com.fsck.k9.provider.EmailProvider.MessageColumns;
 import com.fsck.k9.provider.EmailProvider.SpecialColumns;
 import com.fsck.k9.provider.EmailProvider.ThreadColumns;
 import com.fsck.k9.provider.MessagerProvider;
-import com.fsck.k9.search.LocalSearch;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
@@ -77,6 +73,7 @@ import java.util.Map;
 
 public class MessageListFragment extends SherlockFragment implements OnItemClickListener,
         ConfirmationDialogFragmentListener, LoaderCallbacks<Cursor> {
+    private final static boolean DEBUG = true;
 
 
     private static final String[] THREADED_PROJECTION = {
@@ -128,7 +125,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
 
     public static MessageListFragment newInstance() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         MessageListFragment fragment = new MessageListFragment();
         return fragment;
     }
@@ -146,13 +143,13 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
          *         Never {@code null}.
          */
         public ReverseComparator(final Comparator<T> delegate) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mDelegate = delegate;
         }
 
         @Override
         public int compare(final T object1, final T object2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             // arg1 & 2 are mixed up, this is done on purpose
             return mDelegate.compare(object2, object1);
         }
@@ -171,13 +168,13 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
          *         Comparator chain. Never {@code null}.
          */
         public ComparatorChain(final List<Comparator<T>> chain) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mChain = chain;
         }
 
         @Override
         public int compare(T object1, T object2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             int result = 0;
             for (final Comparator<T> comparator : mChain) {
                 result = comparator.compare(object1, object2);
@@ -194,7 +191,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (mIdColumn == -1) {
                 mIdColumn = cursor1.getColumnIndex("_id");
             }
@@ -208,7 +205,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             int o1HasAttachment = (cursor1.getInt(ATTACHMENT_COUNT_COLUMN) > 0) ? 0 : 1;
             int o2HasAttachment = (cursor2.getInt(ATTACHMENT_COUNT_COLUMN) > 0) ? 0 : 1;
             return o1HasAttachment - o2HasAttachment;
@@ -219,7 +216,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             int o1IsFlagged = (cursor1.getInt(FLAGGED_COLUMN) == 1) ? 0 : 1;
             int o2IsFlagged = (cursor2.getInt(FLAGGED_COLUMN) == 1) ? 0 : 1;
             return o1IsFlagged - o2IsFlagged;
@@ -230,7 +227,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             int o1IsUnread = cursor1.getInt(READ_COLUMN);
             int o2IsUnread = cursor2.getInt(READ_COLUMN);
             return o1IsUnread - o2IsUnread;
@@ -241,7 +238,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             long o1Date = cursor1.getLong(DATE_COLUMN);
             long o2Date = cursor2.getLong(DATE_COLUMN);
             if (o1Date < o2Date) {
@@ -258,7 +255,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             long o1Date = cursor1.getLong(INTERNAL_DATE_COLUMN);
             long o2Date = cursor2.getLong(INTERNAL_DATE_COLUMN);
             if (o1Date == o2Date) {
@@ -275,7 +272,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             String subject1 = cursor1.getString(SUBJECT_COLUMN);
             String subject2 = cursor2.getString(SUBJECT_COLUMN);
 
@@ -293,7 +290,7 @@ public class MessageListFragment extends SherlockFragment implements OnItemClick
 
         @Override
         public int compare(Cursor cursor1, Cursor cursor2) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             String sender1 = getSenderAddressFromCursor(cursor1);
             String sender2 = getSenderAddressFromCursor(cursor2);
 
@@ -435,31 +432,31 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         private WeakReference<MessageListFragment> mFragment;
 
         public MessageListHandler(MessageListFragment fragment) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mFragment = new WeakReference<MessageListFragment>(fragment);
         }
         public void folderLoading(String folder, boolean loading) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_FOLDER_LOADING,
                     (loading) ? 1 : 0, 0, folder);
             sendMessage(msg);
         }
 
         public void refreshTitle() {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_REFRESH_TITLE);
             sendMessage(msg);
         }
 
         public void progress(final boolean progress) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_PROGRESS,
                     (progress) ? 1 : 0, 0);
             sendMessage(msg);
         }
 
         public void updateFooter(final String message) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             post(new Runnable() {
                 @Override
                 public void run() {
@@ -472,13 +469,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         public void goBack() {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_GO_BACK);
             sendMessage(msg);
         }
 
         public void restoreListPosition() {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             MessageListFragment fragment = mFragment.get();
             if (fragment != null) {
                 android.os.Message msg = android.os.Message.obtain(this, ACTION_RESTORE_LIST_POSITION,
@@ -489,7 +486,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         public void openMessage(Integer id) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_OPEN_MESSAGE,
                     id/*messageReference*/);
             sendMessage(msg);
@@ -497,7 +494,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void handleMessage(android.os.Message msg) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             MessageListFragment fragment = mFragment.get();
             if (fragment == null) {
                 return;
@@ -555,7 +552,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         fashion. Never {@code null}.
      */
     protected Comparator<Cursor> getComparator() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         final List<Comparator<Cursor>> chain =
                 new ArrayList<Comparator<Cursor>>(3 /* we add 3 comparators at most */);
 
@@ -585,7 +582,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void folderLoading(String folder, boolean loading) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mCurrentFolder != null && mCurrentFolder.equals(folder)) {
             mCurrentFolder.loading = loading;
         }
@@ -593,7 +590,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void updateTitle() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (!mInitialized) {
             return;
         }
@@ -602,7 +599,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void setWindowProgress() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  int level = Window.PROGRESS_END;
 
         if (mCurrentFolder != null && mCurrentFolder.loading && mListener.getFolderTotal() > 0) {
@@ -619,13 +616,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void setWindowTitle() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         mFragmentListener.setUnreadCount(-1);//mUnreadMessageCount);
     }
 
     private void progress(final boolean progress) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  mFragmentListener.enableActionBarProgress(progress);
         if (mPullToRefreshView != null && !progress) {
             mPullToRefreshView.onRefreshComplete();
@@ -634,7 +631,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": position " + position);
 
        /* if (view == mFooterView) {
@@ -692,7 +689,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         mContext = activity.getApplicationContext();
 
@@ -707,27 +704,21 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         Context appContext = getActivity().getApplicationContext();
-/*
-        mPreferences = Preferences.getPreferences(appContext);
-        mController = MessagingController.getInstance(getActivity().getApplication());
-*/
+
         mPreviewLines = K9.messageListPreviewLines();
         mCheckboxes = K9.messageListCheckboxes();
-        K9.setMessageListStars(false); //DIMA : commented for disabling stars. Check if need
-        mStars = K9.messageListStars();
+        //K9.setMessageListStars(false); //DIMA : commented for disabling stars. Check if need
+        //mStars = K9.messageListStars();
 
         K9.setShowContactPicture(false); //DIMA : check if disabled pictures
         if (K9.showContactPicture()) {
             mContactsPictureLoader = ContactPicture.getContactPictureLoader(getActivity());
         }
-        //mActiveMsgId = -1;
 
         restoreInstanceState(savedInstanceState);
-        decodeArguments();
-
         createCacheBroadcastReceiver(appContext);
 
         mInitialized = true;
@@ -736,7 +727,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         mInflater = inflater;
 
@@ -752,7 +743,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
     @Override
     public void onDestroyView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mSavedListState = mListView.onSaveInstanceState();
         mContext.getContentResolver().unregisterContentObserver(mContentObserver);
         mContentObserver = null;
@@ -764,7 +755,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         initializeMessageList();
 
@@ -780,7 +771,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if(mActiveMsgId != null)
             outState.putInt(STATE_ACTIVE_MESSAGE, mActiveMsgId);
     }
@@ -791,7 +782,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      * @see #onSaveInstanceState(Bundle)
      */
     private void restoreInstanceState(Bundle savedInstanceState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (savedInstanceState == null) {
             return;
         }
@@ -805,7 +796,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      * Write the unique IDs of selected messages to a {@link Bundle}.
      */
     private void saveSelectedMessages(Bundle outState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* long[] selected = new long[mSelected.size()];
         int i = 0;
         for (Long id : mSelected) {
@@ -818,7 +809,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      * Restore selected messages from a {@link Bundle}.
      */
     private void restoreSelectedMessages(Bundle savedInstanceState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
   /*      long[] selected = savedInstanceState.getLongArray(STATE_SELECTED_MESSAGES);
         for (long id : selected) {
             mSelected.add(Long.valueOf(id));
@@ -826,7 +817,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void saveListState(Bundle outState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     /*    if (mSavedListState != null) {
             // The previously saved state was never restored, so just use that.
             outState.putParcelable(STATE_MESSAGE_LIST, mSavedListState);
@@ -836,7 +827,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void initializeSortSettings() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mSortAscending = true;
         mSortDateAscending = true;
        /* if (mSingleAccountMode) {
@@ -850,98 +841,17 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         } */
     }
 
-    private void decodeArguments() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        Bundle args = getArguments();
-
-        /*mSearch = args.getParcelable(ARG_SEARCH);
-        mTitle = mSearch.getName();
-
-        String[] accountUuids = mSearch.getAccountUuids();
-
-        if(true) { //DIMA hardcoded for 1 account
-            Log.e("MessageListFragment", "decodeArguments: hardcoding account and folderName");
-            mSingleAccountMode = true;
-            mSingleFolderMode = true;
-            mAccount = null;
-            Log.e("MessageListFragment", "ERROR, account is NULL. Should add initialization!!!!");
-            mFolderName = "allMessagesFolder";
-            mAccountUuids = new String[] {"1"};
-        }
-        else {
-            mSingleAccountMode = false;
-            if (accountUuids.length == 1 && !mSearch.searchAllAccounts()) {
-                mSingleAccountMode = true;
-                //DIMA TODO: commented
-                Log.e("ERROR", "decodeArguments: skipping");
-                mAccount = mPreferences.getAccount(accountUuids[0]);
-            }
-
-            mSingleFolderMode = false;
-            if (mSingleAccountMode && (mSearch.getFolderNames().size() == 1)) {
-                mSingleFolderMode = true;
-                mFolderName = mSearch.getFolderNames().get(0);
-                mCurrentFolder = getFolder(mFolderName, mAccount);
-            }
-
-            mAllAccounts = false;
-            if (mSingleAccountMode) {
-                mAccountUuids = new String[] { mAccount.getUuid() };
-            } else {
-                if (accountUuids.length == 1 &&
-                        accountUuids[0].equals(SearchSpecification.ALL_ACCOUNTS)) {
-                    mAllAccounts = true;
-
-                    Account[] accounts = mPreferences.getAccounts();
-
-                    mAccountUuids = new String[accounts.length];
-                    for (int i = 0, len = accounts.length; i < len; i++) {
-                        mAccountUuids[i] = accounts[i].getUuid();
-                    }
-
-                    if (mAccountUuids.length == 1) {
-                        mSingleAccountMode = true;
-                        mAccount = accounts[0];
-                    }
-                } else {
-                    mAccountUuids = accountUuids;
-                }
-            }
-        }*/
-    }
-
     private void initializeMessageList() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mAdapter = new MessageListAdapter();
-/*
-        if (mFolderName != null) {
-            mCurrentFolder = getFolder(mFolderName, mAccount);
-        }
-
-        if (mSingleFolderMode) {*/
         mListView.addFooterView(getFooterView(mListView));
         updateFooterView();
-        //}
 
         mListView.setAdapter(mAdapter);
-        /*String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
-
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
-        }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext,
-                android.R.layout.simple_list_item_1, list);
-        mListView.setAdapter(adapter);*/
-
     }
 
     private void createCacheBroadcastReceiver(Context appContext) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(appContext);
 
         mCacheBroadcastReceiver = new BroadcastReceiver() {
@@ -955,14 +865,14 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private FolderInfoHolder getFolder(String folder, Account account) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  LocalFolder localFolder = null;
         try {
             LocalStore localStore = account.getLocalStore();
             localFolder = localStore.getFolder(folder);
             return new FolderInfoHolder(mContext, localFolder, account);
         } catch (Exception e) {
-            Log.e(K9.LOG_TAG, "getFolder(" + folder + ") goes boom: ", e);
+            if (DEBUG) Log.d(K9.LOG_TAG, "getFolder(" + folder + ") goes boom: ", e);
             return null;
         } finally {
             if (localFolder != null) {
@@ -973,28 +883,28 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private String getFolderNameById(Account account, long folderId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* try {
             Folder folder = getFolderById(account, folderId);
             if (folder != null) {
                 return folder.getName();
             }
         } catch (Exception e) {
-            Log.e(K9.LOG_TAG, "getFolderNameById() failed.", e);
+            if (DEBUG) Log.d(K9.LOG_TAG, "getFolderNameById() failed.", e);
         }
 */
         return null;
     }
 
     private Folder getFolderById(Account account, long folderId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* try {
             LocalStore localStore = account.getLocalStore();
             LocalFolder localFolder = localStore.getFolderById(folderId);
             localFolder.open(Folder.OPEN_MODE_RO);
             return localFolder;
         } catch (Exception e) {
-            Log.e(K9.LOG_TAG, "getFolderNameById() failed.", e);
+            if (DEBUG) Log.d(K9.LOG_TAG, "getFolderNameById() failed.", e);
             return null;
         }*/
         return null;
@@ -1003,7 +913,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onPause() {
         super.onPause();
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 /*
         mLocalBroadcastManager.unregisterReceiver(mCacheBroadcastReceiver);
         mListener.onPause(getActivity());
@@ -1018,7 +928,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         Context appContext = getActivity().getApplicationContext();
 
@@ -1031,41 +941,20 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         mLocalBroadcastManager.registerReceiver(mCacheBroadcastReceiver, mCacheIntentFilter);
-        /*mListener.onResume(getActivity());
-        mController.addListener(mListener);
-
-        //Cancel pending new mail notifications when we open an account
-        Account[] accountsWithNotification;
-
-        Account account = mAccount;
-        if (account != null) {
-            accountsWithNotification = new Account[] { account };
-        } else {
-            accountsWithNotification = mPreferences.getAccounts();
-        }
-
-        for (Account accountWithNotification : accountsWithNotification) {
-            mController.notifyAccountCancel(appContext, accountWithNotification);
-        }
-
-        if (mAccount != null && mFolderName != null && !mSearch.isManualSearch()) {
-            mController.getFolderUnreadMessageCount(mAccount, mFolderName, mListener);
-        }
-*/
         updateTitle();
 
-        if(mActiveMsgId != null)
-            mHandler.openMessage(mActiveMsgId);
+        /*if(mActiveMsgId != null)
+            mHandler.openMessage(mActiveMsgId);*/
     }
 
     private void restartLoader() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.restartLoader(0, null, this);
     }
 
     private void initializePullToRefresh(LayoutInflater inflater, View layout) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mPullToRefreshView = (PullToRefreshListView) layout.findViewById(R.id.message_list);
 
         // Set empty view
@@ -1109,13 +998,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         {@code true} to enable. {@code false} to disable.
      */
     private void setPullToRefreshEnabled(boolean enable) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mPullToRefreshView.setMode((enable) ?
                 PullToRefreshBase.Mode.PULL_FROM_START : PullToRefreshBase.Mode.DISABLED);
     }
 
     private void initializeLayout() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mListView = mPullToRefreshView.getRefreshableView();
         mListView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         mListView.setLongClickable(true);
@@ -1127,27 +1016,27 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void onCompose() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          mFragmentListener.onCompose();
     }
 
     public void onReply(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // mFragmentListener.onReply(message);
     }
 
     public void onForward(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // mFragmentListener.onForward(message);
     }
 
     public void onResendMessage(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // mFragmentListener.onResendMessage(message);
     }
 
     public void changeSort(SortType sortType) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  Boolean sortAscending = (mSortType == sortType) ? !mSortAscending : null;
         changeSort(sortType, sortAscending);*/
     }
@@ -1156,7 +1045,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      * User has requested a remote search.  Setup the bundle and start the intent.
      */
     public void onRemoteSearchRequested() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   String searchAccount;
         String searchFolder;
 
@@ -1185,7 +1074,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      */
     // FIXME: Don't save the changes in the UI thread
     private void changeSort(SortType sortType, Boolean sortAscending) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* mSortType = sortType;
 
         Account account = mAccount;
@@ -1223,7 +1112,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void reSort() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         int toastString = mSortType.getToast(mSortAscending);
 
         Toast toast = Toast.makeText(getActivity(), toastString, Toast.LENGTH_SHORT);
@@ -1237,7 +1126,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void onCycleSort() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         SortType[] sorts = SortType.values();
         int curIndex = 0;
 
@@ -1258,13 +1147,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void onDelete(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  onDelete(Collections.singletonList(message));
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (resultCode != Activity.RESULT_OK) {
             return;
         }
@@ -1304,19 +1193,19 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void onExpunge() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   if (mCurrentFolder != null) {
             onExpunge(mAccount, mCurrentFolder.name);
         }*/
     }
 
     private void onExpunge(final Account account, String folderName) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mController.expunge(account, folderName, null);
     }
 
     private void showDialog(int dialogId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  DialogFragment fragment;
         if(dialogId == R.id.dialog_confirm_spam) {
             String title = getString(R.string.dialog_confirm_spam_title);
@@ -1377,13 +1266,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private String getDialogTag(int dialogId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return "dialog-" + dialogId;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         int itemId = item.getItemId();
         if (itemId == R.id.set_sort_date) {
                 changeSort(SortType.SORT_DATE);
@@ -1491,13 +1380,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void onSendPendingMessages() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // mController.sendPendingMessages(mAccount, null);
     }
 
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mContextMenuUniqueId == 0) {
             return false;
         }
@@ -1573,7 +1462,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
 
     private static String getSenderAddressFromCursor(Cursor cursor) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   String fromList = cursor.getString(SENDER_LIST_COLUMN);
         Address[] fromAddrs = Address.unpack(fromList);
         return (fromAddrs.length > 0) ? fromAddrs[0].getAddress() : null;*/
@@ -1583,7 +1472,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
      /*   AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         Cursor cursor = (Cursor) mListView.getItemAtPosition(info.position);
@@ -1642,13 +1531,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void onSwipeRightToLeft(final MotionEvent e1, final MotionEvent e2) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         // Handle right-to-left as an un-select
       //  handleSwipe(e1, false);
     }
 
     public void onSwipeLeftToRight(final MotionEvent e1, final MotionEvent e2) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         // Handle left-to-right as a select.
       //  handleSwipe(e1, true);
     }
@@ -1662,7 +1551,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         {@code true} if this was an attempt to select (i.e. left to right).
      */
     private void handleSwipe(final MotionEvent downMotion, final boolean selected) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* int x = (int) downMotion.getRawX();
         int y = (int) downMotion.getRawY();
 
@@ -1684,7 +1573,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private int listViewToAdapterPosition(int position) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (position > 0 && position <= mAdapter.getCount()) {
             return position - 1;
         }
@@ -1693,7 +1582,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private int adapterToListViewPosition(int position) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (position >= 0 && position < mAdapter.getCount()) {
             return position + 1;
         }
@@ -1704,7 +1593,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     class MessageListActivityListener extends ActivityListener {
         @Override
         public void remoteSearchFailed(Account acct, String folder, final String err) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /*     mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -1719,20 +1608,20 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void remoteSearchStarted(Account acct, String folder) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
           /*  mHandler.progress(true);
             mHandler.updateFooter(mContext.getString(R.string.remote_search_sending_query));*/
         }
 
         @Override
         public void enableProgressIndicator(boolean enable) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          //   mHandler.progress(enable);
         }
 
         @Override
         public void remoteSearchFinished(Account acct, String folder, int numResults, List<Message> extraResults) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
           /*  mHandler.progress(false);
             mHandler.remoteSearchFinished();
             mExtraSearchResults = extraResults;
@@ -1747,7 +1636,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void remoteSearchServerQueryComplete(Account account, String folderName, int numResults) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          /*   mHandler.progress(true);
             if (account != null &&  account.getRemoteSearchNumResults() != 0 && numResults > account.getRemoteSearchNumResults()) {
                 mHandler.updateFooter(mContext.getString(R.string.remote_search_downloading_limited,
@@ -1760,13 +1649,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void informUserOfStatus() {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
           //  mHandler.refreshTitle();
         }
 
         @Override
         public void synchronizeMailboxStarted(Account account, String folder) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          /*   if (updateForMe(account, folder)) {
                 mHandler.progress(true);
                 mHandler.folderLoading(folder, true);
@@ -1777,7 +1666,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         @Override
         public void synchronizeMailboxFinished(Account account, String folder,
         int totalMessagesInMailbox, int numNewMessages) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 /*
             if (updateForMe(account, folder)) {
                 mHandler.progress(false);
@@ -1788,7 +1677,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void synchronizeMailboxFailed(Account account, String folder, String message) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 /*
             if (updateForMe(account, folder)) {
                 mHandler.progress(false);
@@ -1799,7 +1688,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void folderStatusChanged(Account account, String folder, int unreadMessageCount) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          /*   if (isSingleAccountMode() && isSingleFolderMode() && mAccount.equals(account) &&
                     mFolderName.equals(folder)) {
                 mUnreadMessageCount = unreadMessageCount;
@@ -1808,7 +1697,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         private boolean updateForMe(Account account, String folder) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
          /*   if (account == null || folder == null) {
                 return false;
             }
@@ -1833,7 +1722,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         MessageListAdapter() {
             super(getActivity(), null, 0);
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mAttachmentIcon = getResources().getDrawable(R.drawable.ic_email_attachment_small);
             mAnsweredIcon = getResources().getDrawable(R.drawable.ic_email_answered_small);
             mForwardedIcon = getResources().getDrawable(R.drawable.ic_email_forwarded_small);
@@ -1841,7 +1730,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         private String recipientSigil(boolean toMe, boolean ccMe) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (toMe) {
                 return getString(R.string.messagelist_sent_to_me_sigil);
             } else if (ccMe) {
@@ -1853,7 +1742,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             View view = mInflater.inflate(R.layout.message_list_item, parent, false);
             view.setId(R.layout.message_list_item);
 
@@ -1920,15 +1809,15 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if(true) {
-                Log.e("MessageListFragment", "bindView: cursor id " + cursor.getString(0));
+                if (DEBUG) Log.d("MessageListFragment", "bindView: cursor id " + cursor.getString(0));
             }
 
 /*            view.setBackgroundColor(Color.WHITE);
             MessageViewHolder holder = (MessageViewHolder) view.getTag();
             if(holder == null) {
-                Log.e("MessageListFragment", "bindView: holder is null");
+                if (DEBUG) Log.d("MessageListFragment", "bindView: holder is null");
                 return;
             }
 
@@ -2064,7 +1953,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 /*            if (mStars) {
                 holder.flagged.setChecked(flagged);
             }*/
-            Log.e("", "possition is: " + cursor.getPosition());
+            if (DEBUG) Log.d("", "possition is: " + cursor.getPosition());
             holder.position = cursor.getPosition();
 /*
             if (holder.contactBadge != null) {
@@ -2207,7 +2096,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         public QuickContactBadge contactBadge;
         @Override
         public void onClick(View view) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
             + ": view " + view.getClass().getName() + "; possition " + position);
             if (position != -1) {
 
@@ -2218,13 +2107,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
                }
                else if (view.getId() == R.id.flagged_bottom_right ||
                         view.getId() == R.id.flagged_center_right) {
-                   Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                   if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                    + ": flagged button " + (view.getId() == R.id.flagged_bottom_right ? "bottom" : "center"));
                    CheckBox checkBox = (CheckBox) view;
                    toggleMessageFlagWithAdapterPosition(position, checkBox.isChecked());
                }
                else {
-                   Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                   if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                            + ": view Id hasn't been matched " + view.getId());
                }
 
@@ -2244,7 +2133,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
 
     private View getFooterView(ViewGroup parent) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mFooterView == null) {
             mFooterView = mInflater.inflate(R.layout.message_list_item_footer, parent, false);
             mFooterView.setId(R.layout.message_list_item_footer);
@@ -2257,7 +2146,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void updateFooterView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*if (!mSearch.isManualSearch() && mCurrentFolder != null && mAccount != null) {
             if (mCurrentFolder.loading) {
                 updateFooter(mContext.getString(R.string.status_loading_more));
@@ -2280,7 +2169,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     public void updateFooter(final String text) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mFooterView == null) {
             return;
         }
@@ -2309,7 +2198,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         action mode is finished.
      */
     private void setSelectionState(boolean selected) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (selected) {
             if (mAdapter.getCount() == 0) {
                 // Nothing to do if there are no messages
@@ -2349,7 +2238,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void toggleMessageSelect(int listViewPosition) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  int adapterPosition = listViewToAdapterPosition(listViewPosition);
         if (adapterPosition == AdapterView.INVALID_POSITION) {
             return;
@@ -2359,7 +2248,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void toggleMessageFlagWithAdapterPosition(int adapterPosition, boolean isChecked) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": adapterPosition " + adapterPosition + "; isChecked " + isChecked);
      /*   Cursor cursor = (Cursor) mAdapter.getItem(adapterPosition);
         boolean flagged = (cursor.getInt(FLAGGED_COLUMN) == 1);
@@ -2368,7 +2257,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void toggleMessageSelectWithAdapterPosition(int adapterPosition, boolean isChecked) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
          + ": adapterPosition " + adapterPosition + "; isChecked " + isChecked);
     /*    Cursor cursor = (Cursor) mAdapter.getItem(adapterPosition);
         long uniqueId = cursor.getLong(mUniqueIdColumn);
@@ -2416,17 +2305,17 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void updateActionModeTitle() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mActionMode.setTitle(String.format(getString(R.string.actionbar_selected), mSelectedCount));
     }
 
     private void computeSelectAllVisibility() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mActionModeCallback.showSelectAll(mSelected.size() != mAdapter.getCount());
     }
 
     private void computeBatchDirection() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   boolean isBatchFlag = false;
         boolean isBatchRead = false;
 
@@ -2456,7 +2345,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
     private void setFlag(int adapterPosition, final Flag flag, final boolean newState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (adapterPosition == AdapterView.INVALID_POSITION) {
             return;
         }
@@ -2478,7 +2367,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     }
 
 /*    private void setFlagForSelected(final Flag flag, final boolean newState) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     if (mSelected.size() == 0) {
         return;
     }
@@ -2533,7 +2422,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 }
 */
     private void onMove(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  onMove(Collections.singletonList(message));
     }
 
@@ -2544,7 +2433,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         Never {@code null}.
      */
 /*    private void onMove(List<Message> messages) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     if (!checkCopyOrMovePossible(messages, FolderOperation.MOVE)) {
         return;
     }
@@ -2564,7 +2453,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 }
 */
     private void onCopy(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  onCopy(Collections.singletonList(message));
     }
 
@@ -2575,7 +2464,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      *         Never {@code null}.
      */
 /*    private void onCopy(List<Message> messages) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     if (!checkCopyOrMovePossible(messages, FolderOperation.COPY)) {
         return;
     }
@@ -2608,7 +2497,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      */
 /*private void displayFolderChoice(int requestCode, Account account, Folder folder,
         List<Message> messages) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
     Intent intent = new Intent(getActivity(), ChooseFolder.class);
     intent.putExtra(ChooseFolder.EXTRA_ACCOUNT, account.getUuid());
@@ -2626,12 +2515,12 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 }
 
 private void onArchive(final Message message) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
  //   onArchive(Collections.singletonList(message));
 }
 
 private void onArchive(final List<Message> messages) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     Map<Account, List<Message>> messagesByAccount = groupMessagesByAccount(messages);
 
     for (Entry<Account, List<Message>> entry : messagesByAccount.entrySet()) {
@@ -2646,7 +2535,7 @@ private void onArchive(final List<Message> messages) {
 */
     //DIMA TODO: check if I can use it for grouping conversations
     private Map<Account, List<Message>> groupMessagesByAccount(final List<Message> messages) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  Map<Account, List<Message>> messagesByAccount = new HashMap<Account, List<Message>>();
         for (Message message : messages) {
             Account account = message.getFolder().getAccount();
@@ -2664,7 +2553,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     private void onSpam(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  onSpam(Collections.singletonList(message));
     }
 
@@ -2675,7 +2564,7 @@ private void onArchive(final List<Message> messages) {
      *         The messages to move to the spam folder. Never {@code null}.
      */
 /*    private void onSpam(List<Message> messages) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (K9.confirmSpam()) {
             // remember the message selection for #onCreateDialog(int)
             mActiveMessages = messages;
@@ -2687,7 +2576,7 @@ private void onArchive(final List<Message> messages) {
 */
 /*
     private void onSpamConfirmed(List<Message> messages) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         Map<Account, List<Message>> messagesByAccount = groupMessagesByAccount(messages);
 
         for (Entry<Account, List<Message>> entry : messagesByAccount.entrySet()) {
@@ -2716,7 +2605,7 @@ private void onArchive(final List<Message> messages) {
      */
 /*    private boolean checkCopyOrMovePossible(final List<Message> messages,
             final FolderOperation operation) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         if (messages.size() == 0) {
             return false;
@@ -2754,7 +2643,7 @@ private void onArchive(final List<Message> messages) {
      *         The name of the destination folder. Never {@code null}.
      */
 /*    private void copy(List<Message> messages, final String destination) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         copyOrMove(messages, destination, FolderOperation.COPY);
     }
 */
@@ -2767,7 +2656,7 @@ private void onArchive(final List<Message> messages) {
      *         The name of the destination folder. Never {@code null}.
      */
 /*    private void move(List<Message> messages, final String destination) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         copyOrMove(messages, destination, FolderOperation.MOVE);
     }
 */
@@ -2785,7 +2674,7 @@ private void onArchive(final List<Message> messages) {
      */
 /*    private void copyOrMove(List<Message> messages, final String destination,
             final FolderOperation operation) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         Map<String, List<Message>> folderMap = new HashMap<String, List<Message>>();
 
@@ -2849,7 +2738,7 @@ private void onArchive(final List<Message> messages) {
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mSelectAll = menu.findItem(R.id.select_all);
             mMarkAsRead = menu.findItem(R.id.mark_as_read);
             mMarkAsUnread = menu.findItem(R.id.mark_as_unread);
@@ -2860,7 +2749,7 @@ private void onArchive(final List<Message> messages) {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             mActionMode = null;
             mSelectAll = null;
             mMarkAsRead = null;
@@ -2872,7 +2761,7 @@ private void onArchive(final List<Message> messages) {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.message_list_context, menu);
 
@@ -2891,7 +2780,7 @@ private void onArchive(final List<Message> messages) {
          *         The menu to adapt.
          */
        /* private void setContextCapabilities(Account account, Menu menu) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (!mSingleAccountMode) {
                 // We don't support cross-account copy/move operations right now
                 menu.findItem(R.id.move).setVisible(false);
@@ -2925,14 +2814,14 @@ private void onArchive(final List<Message> messages) {
         }
 
         public void showSelectAll(boolean show) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (mActionMode != null) {
                 mSelectAll.setVisible(show);
             }
         }
 
         public void showMarkAsRead(boolean show) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (mActionMode != null) {
                 mMarkAsRead.setVisible(show);
                 mMarkAsUnread.setVisible(!show);
@@ -2940,7 +2829,7 @@ private void onArchive(final List<Message> messages) {
         }
 
         public void showFlag(boolean show) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if (mActionMode != null) {
                 mFlag.setVisible(show);
                 mUnflag.setVisible(!show);
@@ -2949,7 +2838,7 @@ private void onArchive(final List<Message> messages) {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
            */ /*
              * In the following we assume that we can't move or copy
              * mails to the same folder. Also that spam isn't available if we are
@@ -3009,7 +2898,7 @@ private void onArchive(final List<Message> messages) {
 
     @Override
     public void doPositiveClick(int dialogId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (dialogId == R.id.dialog_confirm_spam) {
                /* onSpamConfirmed(mActiveMessages);
                 // No further need for this reference
@@ -3019,7 +2908,7 @@ private void onArchive(final List<Message> messages) {
 
     @Override
     public void doNegativeClick(int dialogId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (dialogId == R.id.dialog_confirm_spam) {
                 // No further need for this reference
                 mActiveMsgId = null;
@@ -3037,12 +2926,12 @@ private void onArchive(final List<Message> messages) {
 
     @Override
     public void dialogCancelled(int dialogId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         doNegativeClick(dialogId);
     }
 
     public void checkMail() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   if (isSingleAccountMode() && isSingleFolderMode()) {
             mController.synchronizeMailbox(mAccount, mFolderName, mListener, null);
             mController.sendPendingMessages(mAccount, mListener);
@@ -3062,7 +2951,7 @@ private void onArchive(final List<Message> messages) {
      */
     @Override
     public void onStop() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   // If we represent a remote search, then kill that before going back.
         if (isRemoteSearch() && mRemoteSearchFuture != null) {
             try {
@@ -3070,7 +2959,7 @@ private void onArchive(final List<Message> messages) {
                 // Canceling the future stops any message fetches in progress.
                 final boolean cancelSuccess = mRemoteSearchFuture.cancel(true);   // mayInterruptIfRunning = true
                 if (!cancelSuccess) {
-                    Log.e(K9.LOG_TAG, "Could not cancel remote search future.");
+                    if (DEBUG) Log.d(K9.LOG_TAG, "Could not cancel remote search future.");
                 }
                 // Closing the folder will kill off the connection if we're mid-search.
                 final Account searchAccount = mAccount;
@@ -3080,14 +2969,14 @@ private void onArchive(final List<Message> messages) {
                 mListener.remoteSearchFinished(searchAccount, mCurrentFolder.name, 0, null);
             } catch (Exception e) {
                 // Since the user is going back, log and squash any exceptions.
-                Log.e(K9.LOG_TAG, "Could not abort remote search before going back", e);
+                if (DEBUG) Log.d(K9.LOG_TAG, "Could not abort remote search before going back", e);
             }
         }*/
         super.onStop();
     }
 
     public ArrayList<MessageReference> getMessageReferences() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         ArrayList<MessageReference> messageRefs = new ArrayList<MessageReference>();
 /*
         for (int i = 0, len = mAdapter.getCount(); i < len; i++) {
@@ -3106,12 +2995,12 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void selectAll() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  setSelectionState(true);
     }
 
     public void onMoveUp() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  int currentPosition = mListView.getSelectedItemPosition();
         if (currentPosition == AdapterView.INVALID_POSITION || mListView.isInTouchMode()) {
             currentPosition = mListView.getFirstVisiblePosition();
@@ -3122,7 +3011,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onMoveDown() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   int currentPosition = mListView.getSelectedItemPosition();
         if (currentPosition == AdapterView.INVALID_POSITION || mListView.isInTouchMode()) {
             currentPosition = mListView.getFirstVisiblePosition();
@@ -3134,7 +3023,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean openPrevious(MessageReference messageReference) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  int position = getPosition(messageReference);
         if (position <= 0) {
             return false;
@@ -3145,7 +3034,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean openNext(MessageReference messageReference) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   int position = getPosition(messageReference);
         if (position < 0 || position == mAdapter.getCount() - 1) {
             return false;
@@ -3156,17 +3045,17 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean isFirst(Integer msgId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return mAdapter.isEmpty() || (msgId == 0);
     }
 
     public boolean isLast(Integer msgId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return mAdapter.isEmpty() || (msgId == mAdapter.getCount() - 1);
     }
 
     private MessageReference getReferenceForPosition(int position) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   Cursor cursor = (Cursor) mAdapter.getItem(position);
         MessageReference ref = new MessageReference();
         ref.accountUuid = cursor.getString(ACCOUNT_UUID_COLUMN);
@@ -3178,7 +3067,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     private void openMessageAtPosition(int position) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         // Scroll message into view if necessary
       /*  int listViewPosition = adapterToListViewPosition(position);
         if (listViewPosition != AdapterView.INVALID_POSITION &&
@@ -3196,7 +3085,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     private int getPosition(MessageReference messageReference) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  for (int i = 0, len = mAdapter.getCount(); i < len; i++) {
             Cursor cursor = (Cursor) mAdapter.getItem(i);
 
@@ -3234,12 +3123,12 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onReverseSort() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  changeSort(mSortType);
     }
 
     private Message getSelectedMessage() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   int listViewPosition = mListView.getSelectedItemPosition();
         int adapterPosition = listViewToAdapterPosition(listViewPosition);
 
@@ -3248,14 +3137,14 @@ private void onArchive(final List<Message> messages) {
     }
 
     private int getAdapterPositionForSelectedMessage() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  int listViewPosition = mListView.getSelectedItemPosition();
         return listViewToAdapterPosition(listViewPosition);*/
         return -1;
     }
 
     private int getPositionForUniqueId(long uniqueId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  for (int position = 0, end = mAdapter.getCount(); position < end; position++) {
             Cursor cursor = (Cursor) mAdapter.getItem(position);
             if (cursor.getLong(mUniqueIdColumn) == uniqueId) {
@@ -3267,7 +3156,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     private Message getMessageAtPosition(int adapterPosition) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (adapterPosition == AdapterView.INVALID_POSITION) {
             return null;
         }
@@ -3282,14 +3171,14 @@ private void onArchive(final List<Message> messages) {
         try {
             return folder.getMessage(uid);
         } catch (MessagingException e) {
-            Log.e(K9.LOG_TAG, "Something went wrong while fetching a message", e);
+            if (DEBUG) Log.d(K9.LOG_TAG, "Something went wrong while fetching a message", e);
         }
 */
         return null;
     }
 
     private List<Message> getCheckedMessages() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
   /*      List<Message> messages = new ArrayList<Message>(mSelected.size());
         for (int position = 0, end = mAdapter.getCount(); position < end; position++) {
             Cursor cursor = (Cursor) mAdapter.getItem(position);
@@ -3308,7 +3197,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onDelete() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   Message message = getSelectedMessage();
         if (message != null) {
             onDelete(Collections.singletonList(message));
@@ -3316,22 +3205,22 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void toggleMessageSelect() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // toggleMessageSelect(mListView.getSelectedItemPosition());
     }
 
     public void onToggleFlagged() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // onToggleFlag(Flag.FLAGGED, FLAGGED_COLUMN);
     }
 
     public void onToggleRead() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  onToggleFlag(Flag.SEEN, READ_COLUMN);
     }
 
     private void onToggleFlag(Flag flag, int flagColumn) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* int adapterPosition = getAdapterPositionForSelectedMessage();
         if (adapterPosition == ListView.INVALID_POSITION) {
             return;
@@ -3343,7 +3232,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onMove() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* Message message = getSelectedMessage();
         if (message != null) {
             onMove(message);
@@ -3351,7 +3240,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onArchive() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  Message message = getSelectedMessage();
         if (message != null) {
             onArchive(message);
@@ -3359,7 +3248,7 @@ private void onArchive(final List<Message> messages) {
     }
 
     public void onCopy() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  Message message = getSelectedMessage();
         if (message != null) {
             onCopy(message);
@@ -3367,17 +3256,17 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean isOutbox() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; //(mFolderName != null && mFolderName.equals(mAccount.getOutboxFolderName()));
     }
 
     public boolean isErrorFolder() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // K9.ERROR_FOLDER_NAME.equals(mFolderName);
     }
 
     public boolean isRemoteFolder() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /*if (mSearch.isManualSearch() || isOutbox() || isErrorFolder()) {
             return false;
         }
@@ -3391,12 +3280,12 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean isManualSearch() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // mSearch.isManualSearch();
     }
 
     public boolean isAccountExpungeCapable() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* try {
             return (mAccount != null && mAccount.getRemoteStore().isExpungeCapable());
         } catch (Exception e) {
@@ -3406,12 +3295,12 @@ private void onArchive(final List<Message> messages) {
     }
 
     public boolean isRemoteSearch() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // mRemoteSearchPerformed;
     }
 
     public boolean isRemoteSearchAllowed() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* if (!mSearch.isManualSearch() || mRemoteSearchPerformed || !mSingleFolderMode) {
             return false;
         }
@@ -3428,7 +3317,7 @@ private void onArchive(final List<Message> messages) {
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
 
         if(null == mContentObserver)
@@ -3436,7 +3325,7 @@ private void onArchive(final List<Message> messages) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
-                Log.e("Observer1", "onChange!!!");
+                if (DEBUG) Log.d("Observer1", "onChange!!!");
                 getLoaderManager().getLoader(0).forceLoad();
             }
         };
@@ -3452,13 +3341,13 @@ private void onArchive(final List<Message> messages) {
         };
 
         //DIMA TODO: complete sorting functionality
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": uri " + uri.toString() + "; sortOrder " + buildSortOrder());
         return new CursorLoader(getActivity(), uri, projection, null, null, null/*buildSortOrder()*/);
     }
 /*
 private String getThreadId(LocalSearch search) {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     for (ConditionsTreeNode node : search.getLeafSet()) {
         SearchCondition condition = node.mCondition;
         if (condition.field == Searchfield.THREAD_ID) {
@@ -3470,7 +3359,7 @@ private String getThreadId(LocalSearch search) {
 }
 */
     private String buildSortOrder() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": mSortType " + mSortType);
         String sortColumn = MessageColumns.ID;
         switch (mSortType) {
@@ -3520,7 +3409,7 @@ private String getThreadId(LocalSearch search) {
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": loaderId " + loader.getId() + " data: " + data);
         mAdapter.changeCursor(data);
         mAdapter.notifyDataSetChanged();
@@ -3531,7 +3420,7 @@ private String getThreadId(LocalSearch search) {
     }
 
     public boolean isLoadFinished() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return true;
     }
 
@@ -3539,7 +3428,7 @@ private String getThreadId(LocalSearch search) {
      * Close the context menu when the message it was opened for is no longer in the message list.
      */
     private void updateContextMenu(Cursor cursor) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (mContextMenuUniqueId == 0) {
             return;
         }
@@ -3559,7 +3448,7 @@ private String getThreadId(LocalSearch search) {
     }
 
     private void cleanupSelected(Cursor cursor) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   if (mSelected.size() == 0) {
             return;
         }
@@ -3579,7 +3468,7 @@ private String getThreadId(LocalSearch search) {
      * Starts or finishes the action mode when necessary.
      */
     private void resetActionMode() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (mSelected.size() == 0) {
             if (mActionMode != null) {
                 mActionMode.finish();
@@ -3604,7 +3493,7 @@ private String getThreadId(LocalSearch search) {
      * </p>
      */
     private void recalculateSelectionCount() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     /*    if (!mThreadedList) {
             mSelectedCount = mSelected.size();
             return;
@@ -3624,20 +3513,20 @@ private String getThreadId(LocalSearch search) {
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mSelected.clear();
         mAdapter.swapCursor(null);
     }
 
     private Account getAccountFromCursor(Cursor cursor) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  String accountUuid = cursor.getString(ACCOUNT_UUID_COLUMN);
         return mPreferences.getAccount(accountUuid);*/
         return null;
     }
 
     private void remoteSearchFinished() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mRemoteSearchFuture = null;
     }
 
@@ -3650,7 +3539,7 @@ private String getThreadId(LocalSearch search) {
      * </p>
      */
     public void setSelectedMsgId(Integer id/*MessageReference messageReference*/) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": messageReference " + id);
         mActiveMsgId = id;
 
@@ -3666,38 +3555,38 @@ private String getThreadId(LocalSearch search) {
     }
 
     public boolean isSingleAccountMode() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // mSingleAccountMode;
     }
 
     public boolean isSingleFolderMode() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // mSingleFolderMode;
     }
 
     public boolean isInitialized() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // mInitialized;
     }
 
     public boolean isMarkAllAsReadSupported() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; // (isSingleAccountMode() && isSingleFolderMode());
     }
 
     public boolean isCheckMailSupported() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return false; /* (mAllAccounts || !isSingleAccountMode() || !isSingleFolderMode() ||
                 isRemoteFolder());*/
     }
 /*
 private boolean isCheckMailAllowed() {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     return false; // (!isManualSearch() && isCheckMailSupported());
 }
 
 private boolean isPullToRefreshAllowed() {
-    Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
     return false; // (isRemoteSearchAllowed() || isCheckMailAllowed());
 }
     */

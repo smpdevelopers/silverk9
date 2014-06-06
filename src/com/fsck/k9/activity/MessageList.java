@@ -56,12 +56,6 @@ public class MessageList extends K9FragmentActivity implements MessageListFragme
     private static final String EXTRA_MESSAGE_ID = "message_id";
     private static final String STATE_DISPLAY_MODE = "displayMode";
 
-    // Used for navigating to next/previous message
- /*
-private static final int PREVIOUS = 1;
-private static final int NEXT = 2;
-*/
-
     public enum SortType {
         SORT_DATE(R.string.sort_earliest_first, R.string.sort_latest_first, false),
         SORT_ARRIVAL(R.string.sort_earliest_first, R.string.sort_latest_first, false),
@@ -129,15 +123,15 @@ private static final int NEXT = 2;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": savedInstanceState " + savedInstanceState);
 
         if (useSplitView()) {
             setContentView(R.layout.split_message_list);
-            Log.e("MessageList", "onCreate - landscape");
+            if (DEBUG) Log.d("MessageList", "onCreate - landscape");
         } else {
             setContentView(R.layout.message_list);
-            Log.e("MessageList", "onCreate");
+            if (DEBUG) Log.d("MessageList", "onCreate");
             mViewSwitcher = (ViewSwitcher) findViewById(R.id.container);
             mViewSwitcher.setFirstInAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_in_left));
             mViewSwitcher.setFirstOutAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_out_right));
@@ -148,8 +142,6 @@ private static final int NEXT = 2;
 
         // Enable gesture detection for MessageLists
         setupGestureDetector(this);
-
-        //mMessageId = -1;
 
         initializeActionBar();
         findFragments();
@@ -162,7 +154,7 @@ private static final int NEXT = 2;
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": intent " + intent);
 
         setIntent(intent);
@@ -185,8 +177,9 @@ private static final int NEXT = 2;
 
     @Override
     public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": itemPosition " + itemPosition + "; itemId " + itemId);
+
         return false;
     }
 
@@ -299,7 +292,7 @@ private static final int NEXT = 2;
      * Get references to existing fragments if the activity was restarted.
      */
     private void findFragments() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentManager fragmentManager = getSupportFragmentManager();
         mMessageListFragment = (MessageListFragment) fragmentManager.findFragmentById(
                 R.id.message_list_container);
@@ -315,7 +308,7 @@ private static final int NEXT = 2;
      * @see #findFragments()
      */
     private void initializeFragments() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.addOnBackStackChangedListener(this);
 
@@ -332,6 +325,7 @@ private static final int NEXT = 2;
         // so, open the referenced message.
         if (!hasMessageListFragment && mMessageViewFragment == null &&
                 mMessageId != null) {
+            openMessage(mMessageId);
         }
     }
 
@@ -348,11 +342,11 @@ private static final int NEXT = 2;
      *         {@link #onCreate(Bundle)}. May be {@code null}.
      */
     private void initializeDisplayMode(Bundle savedInstanceState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": savedInstanceState " + savedInstanceState);
         if (useSplitView()) {
             mDisplayMode = DisplayMode.SPLIT_VIEW;
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                     + ": displayMode " + mDisplayMode);
             return;
         }
@@ -362,7 +356,7 @@ private static final int NEXT = 2;
                     (DisplayMode) savedInstanceState.getSerializable(STATE_DISPLAY_MODE);
             if (savedDisplayMode != DisplayMode.SPLIT_VIEW) {
                 mDisplayMode = savedDisplayMode;
-                Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                         + ": displayMode " + mDisplayMode);
                 return;
             }
@@ -373,23 +367,23 @@ private static final int NEXT = 2;
         } else {
             mDisplayMode = DisplayMode.MESSAGE_LIST;
         }
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": displayMode " + mDisplayMode);
     }
 
     private boolean useSplitView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (getResources().getConfiguration().ORIENTATION_LANDSCAPE == getResources().getConfiguration().orientation);
     }
 
     private void initializeLayout() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mMessageViewContainer = (ViewGroup) findViewById(R.id.message_view_container);
         mMessageViewPlaceHolder = getLayoutInflater().inflate(R.layout.empty_message_view, null);
     }
 
     private void displayViews() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": mode " + mDisplayMode);
         switch (mDisplayMode) {
             case MESSAGE_LIST: {
@@ -402,12 +396,12 @@ private static final int NEXT = 2;
             }
             case SPLIT_VIEW: {
                 mMessageListWasDisplayed = true;
-                if (mMessageViewFragment == null) {
+                if (mMessageViewFragment == null && mMessageId == null) {
                     showMessageViewPlaceHolder();
                 } else {
-                    Integer msgId = mMessageViewFragment.getMsgId();
-                    if (msgId != null)
-                        mMessageListFragment.setSelectedMsgId(msgId);
+                    if (mMessageId != null) {
+                        openMessage(mMessageId);
+                    }
                 }
                 break;
             }
@@ -416,23 +410,25 @@ private static final int NEXT = 2;
 
     @Override
     public void onPause() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        displayViews();
+
         super.onResume();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         super.onSaveInstanceState(outState);
 
         if(mDisplayMode == null) {
-            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+            if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
             + ": mDisplayMode is null!!!!");
         }
         outState.putSerializable(STATE_DISPLAY_MODE, mDisplayMode);
@@ -443,7 +439,7 @@ private static final int NEXT = 2;
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": savedInstanceState " + savedInstanceState);
         super.onRestoreInstanceState(savedInstanceState);
 
@@ -453,14 +449,14 @@ private static final int NEXT = 2;
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": event " + event);
         return super.dispatchKeyEvent(event);
     }
 
     @Override
     public void onBackPressed() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mDisplayMode == DisplayMode.MESSAGE_VIEW && mMessageListWasDisplayed) {
             showMessageList();
         } else {
@@ -470,7 +466,7 @@ private static final int NEXT = 2;
 
     //@Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": item " + item);
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
@@ -594,7 +590,7 @@ private static final int NEXT = 2;
 
     //@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": menu " + menu);
         getSupportMenuInflater().inflate(R.menu.message_list_option, menu);
         mMenu = menu;
@@ -603,7 +599,7 @@ private static final int NEXT = 2;
 
     //@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": menu " + menu);
         configureMenu(menu);
         return true;
@@ -622,7 +618,7 @@ private static final int NEXT = 2;
      *         the method does nothing and immediately returns.
      */
     private void configureMenu(Menu menu) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": menu " + menu);
         if (menu == null) {
             return;
@@ -780,26 +776,26 @@ private static final int NEXT = 2;
     }
 
     protected void onAccountUnavailable() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  finish();
         // TODO inform user about account unavailability using Toast
         Accounts.listAccounts(this);*/
     }
 
     public void setActionBarTitle(String title) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": title " + title);
        // mActionBarTitle.setText(title);
     }
 
     public void setActionBarSubTitle(String subTitle) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": subTitle " + subTitle);
       //  mActionBarSubTitle.setText(subTitle);
     }
 
     public void setActionBarUnread(int unread) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": unread " + unread);
         if (unread == 0) {
             mActionBarUnread.setVisibility(View.GONE);
@@ -811,35 +807,35 @@ private static final int NEXT = 2;
 
     @Override
     public void setMessageListTitle(String title) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": title " + title);
       //  setActionBarTitle(title);
     }
 
     @Override
     public void setMessageListSubTitle(String subTitle) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": subTitle " + subTitle);
       //  setActionBarSubTitle(subTitle);
     }
 
     @Override
     public void setUnreadCount(int unread) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": unread " + unread);
         setActionBarUnread(unread);
     }
 
     @Override
     public void setMessageListProgress(int progress) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": progress " + progress);
       //  setSupportProgress(progress);
     }
 
     @Override
     public void openMessage(Integer id) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": messageReference " + id);
         mMessageId = id;
 
@@ -866,35 +862,35 @@ private static final int NEXT = 2;
 
     @Override
     public void onResendMessage(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message);
         MessageCompose.actionEditDraft(this, message.makeMessageReference());
     }
 
     @Override
     public void onForward(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message);
       //  MessageCompose.actionForward(this, message.getFolder().getAccount(), message, null);
     }
 
     @Override
     public void onReply(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message);
       //  MessageCompose.actionReply(this, message.getFolder().getAccount(), message, false, null);
     }
 
     @Override
     public void onReplyAll(Message message) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message);
       //  MessageCompose.actionReply(this, message.getFolder().getAccount(), message, true, null);
     }
 
     @Override
     public void showMoreFromSameSender(String senderAddress) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": senderAddress " + senderAddress);
        /* LocalSearch tmpSearch = new LocalSearch("From " + senderAddress);
         tmpSearch.addAccountUuids(mSearch.getAccountUuids());
@@ -907,14 +903,14 @@ private static final int NEXT = 2;
 
     @Override
     public void onCompose() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         //DIMA TODO: add calling that activity
         //MessageCompose.actionCompose(this, null);
     }
 
     @Override
     public void onBackStackChanged() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         findFragments();
 
         if (mDisplayMode == DisplayMode.SPLIT_VIEW) {
@@ -926,7 +922,7 @@ private static final int NEXT = 2;
 
     @Override
     public void onSwipeRightToLeft(MotionEvent e1, MotionEvent e2) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": e1 " + e1 + "; e2 " + e2);
       /*  if (mMessageListFragment != null && mDisplayMode != DisplayMode.MESSAGE_VIEW) {
             mMessageListFragment.onSwipeRightToLeft(e1, e2);
@@ -935,7 +931,7 @@ private static final int NEXT = 2;
 
     @Override
     public void onSwipeLeftToRight(MotionEvent e1, MotionEvent e2) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": e1 " + e1 + "; e2 " + e2);
       /*  if (mMessageListFragment != null && mDisplayMode != DisplayMode.MESSAGE_VIEW) {
             mMessageListFragment.onSwipeLeftToRight(e1, e2);
@@ -963,7 +959,7 @@ private static final int NEXT = 2;
 */
 
     private void addMessageListFragment(MessageListFragment fragment, boolean addToBackStack) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": fragment " + fragment + "; addToBackStack " + addToBackStack);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
@@ -981,7 +977,7 @@ private static final int NEXT = 2;
 
     @Override
     public boolean startSearch(Account account, String folderName) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": account " + account + "; folderName " + folderName);
        /* // If this search was started from a MessageList of a single folder, pass along that folder info
         // so that we can enable remote search.
@@ -1000,7 +996,7 @@ private static final int NEXT = 2;
 
     @Override
     public void showThread(Account account, String folderName, long threadRootId) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": account " + account + "; folderName " + folderName + "; threadRootId " + threadRootId);
        /* showMessageViewPlaceHolder();
 
@@ -1013,7 +1009,7 @@ private static final int NEXT = 2;
     }
 
     private void showMessageViewPlaceHolder() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         removeMessageViewFragment();
 
         // Add placeholder view if necessary
@@ -1028,7 +1024,7 @@ private static final int NEXT = 2;
      * Remove MessageViewFragment if necessary.
      */
     private void removeMessageViewFragment() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessageViewFragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.remove(mMessageViewFragment);
@@ -1040,7 +1036,7 @@ private static final int NEXT = 2;
     }
 
     private void removeMessageListFragment() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.remove(mMessageListFragment);
         mMessageListFragment = null;
@@ -1049,14 +1045,14 @@ private static final int NEXT = 2;
 
     @Override
     public void remoteSearchStarted() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         // Remove action button for remote search
         configureMenu(mMenu);
     }
 
     @Override
     public void goBack() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (mDisplayMode == DisplayMode.MESSAGE_VIEW) {
             showMessageList();
@@ -1072,7 +1068,7 @@ private static final int NEXT = 2;
 
     @Override
     public void displayMessageSubject(String subject) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": subject " + subject);
         //DIMA TODO: install 'inbox'\'sent' title
       /*  if (mDisplayMode == DisplayMode.MESSAGE_VIEW) {
@@ -1082,28 +1078,28 @@ private static final int NEXT = 2;
 
     @Override
     public void onReply(Message message, PgpData pgpData) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message + "; pgpData " + pgpData);
        // MessageCompose.actionReply(this, mAccount, message, false, pgpData.getDecryptedData());
     }
 
     @Override
     public void onReplyAll(Message message, PgpData pgpData) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + message + "; pgpData " + pgpData);
        // MessageCompose.actionReply(this, mAccount, message, true, pgpData.getDecryptedData());
     }
 
     @Override
     public void onForward(Message mMessage, PgpData mPgpData) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": message " + mMessage + "; pgpData " + mPgpData);
        // MessageCompose.actionForward(this, mAccount, mMessage, mPgpData.getDecryptedData());
     }
 
     @Override
     public void showNextMessageOrReturn() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (K9.messageViewReturnToList() || !showLogicalNextMessage()) {
             if (mDisplayMode == DisplayMode.SPLIT_VIEW) {
                 showMessageViewPlaceHolder();
@@ -1119,7 +1115,7 @@ private static final int NEXT = 2;
      * @return {@code true}
      */
     private boolean showLogicalNextMessage() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   boolean result = false;
         if (mLastDirection == NEXT) {
             result = showNextMessage();
@@ -1136,20 +1132,20 @@ private static final int NEXT = 2;
 
     @Override
     public void setProgress(boolean enable) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": enable " + enable);
         setSupportProgressBarIndeterminateVisibility(enable);
     }
 
     @Override
     public void messageHeaderViewAvailable(MessageHeader header) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": header " + header);
       //  mActionBarSubject.setMessageHeader(header);
     }
 
     private boolean showNextMessage() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*  MessageReference ref = mMessageViewFragment.getMessageReference();
         if (ref != null) {
             if (mMessageListFragment.openNext(ref)) {
@@ -1161,7 +1157,7 @@ private static final int NEXT = 2;
     }
 
     private boolean showPreviousMessage() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
      /*   MessageReference ref = mMessageViewFragment.getMessageReference();
         if (ref != null) {
             if (mMessageListFragment.openPrevious(ref)) {
@@ -1173,7 +1169,7 @@ private static final int NEXT = 2;
     }
 
     private void showMessageList() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mMessageListWasDisplayed = true;
         mDisplayMode = DisplayMode.MESSAGE_LIST;
         mViewSwitcher.showFirstView();
@@ -1185,7 +1181,7 @@ private static final int NEXT = 2;
     }
 
     private void showMessageView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mDisplayMode = DisplayMode.MESSAGE_VIEW;
 
         if (!mMessageListWasDisplayed) {
@@ -1199,18 +1195,18 @@ private static final int NEXT = 2;
 
     @Override
     public void updateMenu() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         invalidateOptionsMenu();
     }
 
     @Override
     public void disableDeleteAction() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        // mMenu.findItem(R.id.delete).setEnabled(false);
     }
 
     private void onToggleTheme() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
        /* if (K9.getK9MessageViewTheme() == K9.Theme.DARK) {
             K9.setK9MessageViewThemeSetting(K9.Theme.LIGHT);
         } else {
@@ -1232,7 +1228,7 @@ private static final int NEXT = 2;
     }
 
     private void showDefaultTitleView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": skipping");
        /* mActionBarMessageView.setVisibility(View.GONE);
         mActionBarMessageList.setVisibility(View.VISIBLE);
@@ -1245,7 +1241,7 @@ private static final int NEXT = 2;
     }
 
     private void showMessageTitleView() {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  mActionBarMessageList.setVisibility(View.GONE);
         mActionBarMessageView.setVisibility(View.VISIBLE);
 
@@ -1257,7 +1253,7 @@ private static final int NEXT = 2;
 
     @Override
     public void onSwitchComplete(int displayedChild) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": displayedChild " + displayedChild);
        /* if (displayedChild == 0) {
             removeMessageViewFragment();
@@ -1266,7 +1262,7 @@ private static final int NEXT = 2;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": requestCode " + requestCode + "; resultCode " + resultCode + "; data " + data);
       /*  super.onActivityResult(requestCode, resultCode, data);
 
