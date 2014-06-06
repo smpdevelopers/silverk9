@@ -1262,15 +1262,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
       //  onDelete(Collections.singletonList(message));
     }
 
-    private void onDelete(List<Message> messages) {
-        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-       /* if (mThreadedList) {
-            mController.deleteThreads(messages);
-        } else {
-            mController.deleteMessages(messages, null);
-        }*/
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
@@ -1356,6 +1347,21 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
                 String confirmText = getString(R.string.dialog_confirm_spam_confirm_button);
                 String cancelText = getString(R.string.dialog_confirm_spam_cancel_button);
+
+                fragment = ConfirmationDialogFragment.newInstance(dialogId, title, message,
+                        confirmText, cancelText);
+                break;
+            }
+            case R.id.dialog_confirm_delete: {
+                String title = getString(R.string.dialog_confirm_delete_title);
+
+                int selectionSize = mActiveMessages.size();
+                String message = getResources().getQuantityString(
+                        R.plurals.dialog_confirm_delete_messages, selectionSize,
+                        Integer.valueOf(selectionSize));
+
+                String confirmText = getString(R.string.dialog_confirm_delete_confirm_button);
+                String cancelText = getString(R.string.dialog_confirm_delete_cancel_button);
 
                 fragment = ConfirmationDialogFragment.newInstance(dialogId, title, message,
                         confirmText, cancelText);
@@ -3020,7 +3026,8 @@ private void onArchive(final List<Message> messages) {
         }
         /* DIMA: Change for using in library
         switch (dialogId) {
-            case R.id.dialog_confirm_spam: {
+            case R.id.dialog_confirm_spam:
+            case R.id.dialog_confirm_delete: {
                 // No further need for this reference
                 mActiveMessages = null;
                 break;
