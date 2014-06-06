@@ -84,7 +84,7 @@
 
     <!-- out folders for a parent project if this project is an instrumentation project -->
     <property name="rclib" value="${out.dir}/K9RemoteControl.jar" />
-    <property name="rcdir" value="com/fsck/k9/remotecontrol/**" />
+    <property name="rcdir" value="com/fsck/k9/**" />
 
     <property name="changelog-path-src" value="res/xml/changelog_master.xml" />
 

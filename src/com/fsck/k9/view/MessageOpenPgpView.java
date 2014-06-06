@@ -1,16 +1,6 @@
 
 package com.fsck.k9.view;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
-import org.openintents.openpgp.OpenPgpError;
-import org.openintents.openpgp.OpenPgpSignatureResult;
-import org.openintents.openpgp.util.OpenPgpApi;
-import org.openintents.openpgp.util.OpenPgpServiceConnection;
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -41,6 +31,16 @@ import com.fsck.k9.mail.Message;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.Part;
 import com.fsck.k9.mail.internet.MimeUtility;
+
+import org.openintents.openpgp.OpenPgpError;
+import org.openintents.openpgp.OpenPgpSignatureResult;
+import org.openintents.openpgp.util.OpenPgpApi;
+import org.openintents.openpgp.util.OpenPgpServiceConnection;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 public class MessageOpenPgpView extends LinearLayout {
 
@@ -335,7 +335,7 @@ public class MessageOpenPgpView extends LinearLayout {
                         mMissingKeyPI = result.getParcelableExtra(OpenPgpApi.RESULT_INTENT);
 
                         mProgress.setVisibility(View.GONE);
-                        mFragment.setMessageWithOpenPgp(output, sigResult);
+                       // mFragment.setMessageWithOpenPgp(output, sigResult);
                     } catch (UnsupportedEncodingException e) {
                         Log.e(K9.LOG_TAG, "UnsupportedEncodingException", e);
                     }

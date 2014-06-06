@@ -1,18 +1,5 @@
 package com.fsck.k9.provider;
 
-import com.fsck.k9.Account;
-import com.fsck.k9.AccountStats;
-import com.fsck.k9.BaseAccount;
-import com.fsck.k9.K9;
-import com.fsck.k9.Preferences;
-import com.fsck.k9.R;
-import com.fsck.k9.activity.UnreadWidgetConfiguration;
-import com.fsck.k9.activity.FolderList;
-import com.fsck.k9.activity.MessageList;
-import com.fsck.k9.controller.MessagingController;
-import com.fsck.k9.search.LocalSearch;
-import com.fsck.k9.search.SearchAccount;
-
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -22,6 +9,18 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+
+import com.fsck.k9.Account;
+import com.fsck.k9.AccountStats;
+import com.fsck.k9.BaseAccount;
+import com.fsck.k9.K9;
+import com.fsck.k9.Preferences;
+import com.fsck.k9.R;
+import com.fsck.k9.activity.FolderList;
+import com.fsck.k9.activity.UnreadWidgetConfiguration;
+import com.fsck.k9.controller.MessagingController;
+import com.fsck.k9.search.LocalSearch;
+import com.fsck.k9.search.SearchAccount;
 
 public class UnreadWidgetProvider extends AppWidgetProvider {
     private static final int MAX_COUNT = 9999;
@@ -70,8 +69,8 @@ public class UnreadWidgetProvider extends AppWidgetProvider {
                 account = searchAccount;
                 MessagingController controller = MessagingController.getInstance(K9.app);
                 stats = controller.getSearchAccountStatsSynchronous(searchAccount, null);
-                clickIntent = MessageList.intentDisplaySearch(context,
-                        searchAccount.getRelatedSearch(), false, true, true);
+                /*clickIntent = MessageList.intentDisplaySearch(context,
+                        searchAccount.getRelatedSearch(), false, true, true);*/
             } else {
                 Account realAccount = Preferences.getPreferences(context).getAccount(accountUuid);
                 if (realAccount != null) {
@@ -84,8 +83,8 @@ public class UnreadWidgetProvider extends AppWidgetProvider {
                         LocalSearch search = new LocalSearch(realAccount.getAutoExpandFolderName());
                         search.addAllowedFolder(realAccount.getAutoExpandFolderName());
                         search.addAccountUuid(account.getUuid());
-                        clickIntent = MessageList.intentDisplaySearch(context, search, false, true,
-                                true);
+                        /*clickIntent = MessageList.intentDisplaySearch(context, search, false, true,
+                                true);*/
                     }
                     clickIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 }

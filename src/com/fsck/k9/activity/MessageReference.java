@@ -5,45 +5,36 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.fsck.k9.Account;
-import com.fsck.k9.K9;
-import com.fsck.k9.Preferences;
-import com.fsck.k9.helper.Utility;
-import com.fsck.k9.mail.Flag;
-import com.fsck.k9.mail.Folder;
 import com.fsck.k9.mail.Message;
 import com.fsck.k9.mail.MessagingException;
 
-import java.util.StringTokenizer;
-
 public class MessageReference implements Parcelable {
-    public String accountUuid;
-    public String folderName;
-    public String uid;
-    public Flag flag = null;
-
+    private static final boolean DEBUG = true;
+    public Integer _id;
     /**
      * Initialize an empty MessageReference.
      */
     public MessageReference() {
     }
 
-    // Version identifier for use when serializing. This will allow us to introduce future versions
-    // if we have to rev MessageReference.
-    private static final String IDENTITY_VERSION_1 = "!";
-    private static final String IDENTITY_SEPARATOR = ":";
-
-    /**
+    public MessageReference(final int id) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        _id = id;
+    }
+    /**DIMA TODO: remove that comment
      * Initialize a MessageReference from a seraialized identity.
      * @param identity Serialized identity.
      * @throws MessagingException On missing or corrupted identity.
      */
-    public MessageReference(final String identity) throws MessagingException {
+    public MessageReference(final Integer id) throws MessagingException {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         // Can't be null and must be at least length one so we can check the version.
-        if (identity == null || identity.length() < 1) {
+        if (id == null) {
             throw new MessagingException("Null or truncated MessageReference identity.");
         }
+        _id = id;
 
+/*
         // Version check.
         if (identity.charAt(0) == IDENTITY_VERSION_1.charAt(0)) {
             // Split the identity, stripping away the first two characters representing the version and delimiter.
@@ -68,6 +59,7 @@ public class MessageReference implements Parcelable {
                 throw new MessagingException("Invalid MessageReference in " + identity + " identity.");
             }
         }
+        */
     }
 
     /**
@@ -75,7 +67,7 @@ public class MessageReference implements Parcelable {
      *
      * @return Serialized string.
      */
-    public String toIdentityString() {
+ /*   public String toIdentityString() {
         StringBuilder refString = new StringBuilder();
 
         refString.append(IDENTITY_VERSION_1);
@@ -92,44 +84,36 @@ public class MessageReference implements Parcelable {
 
         return refString.toString();
     }
-
+*/
     @Override
     public boolean equals(Object o) {
         if (o instanceof MessageReference == false) {
             return false;
         }
+/*
         MessageReference other = (MessageReference)o;
         if ((accountUuid == other.accountUuid || (accountUuid != null && accountUuid.equals(other.accountUuid)))
                 && (folderName == other.folderName || (folderName != null && folderName.equals(other.folderName)))
                 && (uid == other.uid || (uid != null && uid.equals(other.uid)))) {
             return true;
         }
+        */
+        MessageReference other = (MessageReference)o;
+        if(other._id == _id)
+            return true;
+
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        final int MULTIPLIER = 31;
-
-        int result = 1;
-        result = MULTIPLIER * result + ((accountUuid == null) ? 0 : accountUuid.hashCode());
-        result = MULTIPLIER * result + ((folderName == null) ? 0 : folderName.hashCode());
-        result = MULTIPLIER * result + ((uid == null) ? 0 : uid.hashCode());
-        return result;
     }
 
     @Override
     public String toString() {
         return "MessageReference{" +
-               "accountUuid='" + accountUuid + '\'' +
-               ", folderName='" + folderName + '\'' +
-               ", uid='" + uid + '\'' +
-               ", flag=" + flag +
+               "_id=" + _id +
                '}';
     }
 
     public Message restoreToLocalMessage(Context context) {
-        try {
+      /*  try {
             Account account = Preferences.getPreferences(context).getAccount(accountUuid);
             if (account != null) {
                 Folder folder = account.getLocalStore().getFolder(folderName);
@@ -149,10 +133,10 @@ public class MessageReference implements Parcelable {
         } catch (MessagingException e) {
             Log.w(K9.LOG_TAG, "Could not retrieve message for reference.", e);
         }
-
+*/
         return null;
     }
-
+/*
     public static final Creator<MessageReference> CREATOR = new Creator<MessageReference>() {
         @Override
         public MessageReference createFromParcel(Parcel source) {
@@ -169,7 +153,7 @@ public class MessageReference implements Parcelable {
         public MessageReference[] newArray(int size) {
             return new MessageReference[size];
         }
-    };
+    };*/
 
     @Override
     public int describeContents() {
@@ -178,9 +162,6 @@ public class MessageReference implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(uid);
-        dest.writeString(accountUuid);
-        dest.writeString(folderName);
-        dest.writeString(flag == null ? null : flag.name());
+        dest.writeInt(_id);
     }
 }

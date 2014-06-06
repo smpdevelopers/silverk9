@@ -34,26 +34,30 @@ public class Preferences {
     }
 
 
-    private Storage mStorage;
+    //DIMA TODO: #1 commented. In future DB will be rewrited & used saving messages
+    //private Storage mStorage;
     private Map<String, Account> accounts = null;
     private List<Account> accountsInOrder = null;
     private Account newAccount;
     private Context mContext;
 
     private Preferences(Context context) {
-        mStorage = Storage.getStorage(context);
         mContext = context;
+        /*DIMA TODO: #1
+        mStorage = Storage.getStorage(context);
         if (mStorage.size() == 0) {
             Log.i(K9.LOG_TAG, "Preferences storage is zero-size, importing from Android-style preferences");
             Editor editor = mStorage.edit();
             editor.copy(context.getSharedPreferences("AndroidMail.Main", Context.MODE_PRIVATE));
             editor.commit();
-        }
+        }*/
     }
 
     public synchronized void loadAccounts() {
         accounts = new HashMap<String, Account>();
         accountsInOrder = new LinkedList<Account>();
+        Log.e("ERROR", "loadAccounts");
+
         String accountUuids = getPreferences().getString("accountUuids", null);
         if ((accountUuids != null) && (accountUuids.length() != 0)) {
             String[] uuids = accountUuids.split(",");
@@ -76,11 +80,13 @@ public class Preferences {
      * @return all accounts
      */
     public synchronized Account[] getAccounts() {
+        /* DIMA TODO: #1
         if (accounts == null) {
             loadAccounts();
         }
 
-        return accountsInOrder.toArray(EMPTY_ACCOUNT_ARRAY);
+        return accountsInOrder.toArray(EMPTY_ACCOUNT_ARRAY);*/
+        return new Account[0];
     }
 
     /**
@@ -101,16 +107,18 @@ public class Preferences {
     }
 
     public synchronized Account getAccount(String uuid) {
+        /*DIMA TODO: #1 (should be added getting account by ID or never use it)
         if (accounts == null) {
             loadAccounts();
         }
         Account account = accounts.get(uuid);
-
         return account;
+        */
+        return null;
     }
 
     public synchronized Account newAccount() {
-        newAccount = new Account(K9.app);
+        newAccount = new Account(mContext/*K9.app*/);
         accounts.put(newAccount.getUuid(), newAccount);
         accountsInOrder.add(newAccount);
 
@@ -141,6 +149,7 @@ public class Preferences {
      * there are no accounts on the system the method returns null.
      */
     public Account getDefaultAccount() {
+        Log.e("ERROR", "getDefaultAccount");
         String defaultAccountUuid = getPreferences().getString("defaultAccountUuid", null);
         Account defaultAccount = getAccount(defaultAccountUuid);
 
@@ -156,10 +165,13 @@ public class Preferences {
     }
 
     public void setDefaultAccount(Account account) {
+        Log.e("ERROR", "setDefaultAccount");
         getPreferences().edit().putString("defaultAccountUuid", account.getUuid()).commit();
     }
 
     public SharedPreferences getPreferences() {
-        return mStorage;
+        return null;
+        //DIMA TODO: #1
+        //return mStorage;
     }
 }

@@ -186,6 +186,7 @@
 
             </LinearLayout>
 
+
             <TextView
                 android:id="@+id/additional_headers_view"
                 android:layout_width="match_parent"
@@ -198,6 +199,7 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textIsSelectable="true" />
 
+
         </LinearLayout>
 
     </LinearLayout>
@@ -209,6 +211,7 @@
         android:background="@drawable/divider_horizontal_email" />
 
     <!-- Button area -->
+    <!--
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -217,11 +220,10 @@
         android:paddingRight="6dip"
         android:paddingTop="4dip"
         android:baselineAligned="false" >
-        
+
         <Button
             android:id="@+id/show_pictures"
             android:layout_width="wrap_content"
-            android:visibility="gone"
             android:layout_marginLeft="6dip"
             android:layout_marginBottom="4dip"
             android:layout_height="wrap_content"
@@ -230,7 +232,6 @@
         
         <Button
             android:id="@+id/show_attachments"
-            android:visibility="gone"
             android:layout_marginLeft="6dip"
             android:layout_marginBottom="4dip"
             android:layout_width="wrap_content"
@@ -240,7 +241,6 @@
 
         <Button
             android:id="@+id/show_message"
-            android:visibility="gone"
             android:layout_marginLeft="6dip"
             android:layout_marginBottom="4dip"
             android:layout_width="wrap_content"
@@ -249,9 +249,6 @@
             style="?android:attr/buttonStyleSmall" />
 
     </LinearLayout>
-
-    <include layout="@layout/message_view_crypto_layout" />
-    
-    <include layout="@layout/message_view_openpgp_layout"/>
+    -->
 
 </com.fsck.k9.view.MessageHeader>

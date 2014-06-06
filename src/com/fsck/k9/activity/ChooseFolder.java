@@ -196,6 +196,30 @@ public class ChooseFolder extends K9ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.display_1st_class) {
+            setDisplayMode(FolderMode.FIRST_CLASS);
+            return true;
+        }
+        else if (item.getItemId() == R.id.display_1st_and_2nd_class) {
+            setDisplayMode(FolderMode.FIRST_AND_SECOND_CLASS);
+            return true;
+        }
+        else if (item.getItemId() == R.id.display_not_second_class) {
+            setDisplayMode(FolderMode.NOT_SECOND_CLASS);
+            return true;
+        }
+        else if (item.getItemId() == R.id.display_all) {
+            setDisplayMode(FolderMode.ALL);
+            return true;
+        }
+        else if (item.getItemId() == R.id.list_folders) {
+            onRefresh();
+            return true;
+        }
+        else {
+            return super.onOptionsItemSelected(item);
+        }
+        /* DIMA: changed for using in the library
         switch (item.getItemId()) {
             case R.id.display_1st_class: {
                 setDisplayMode(FolderMode.FIRST_CLASS);
@@ -220,7 +244,7 @@ public class ChooseFolder extends K9ListActivity {
             default: {
                 return super.onOptionsItemSelected(item);
             }
-        }
+        }*/
     }
 
     private void onRefresh() {

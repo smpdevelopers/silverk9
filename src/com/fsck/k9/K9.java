@@ -28,7 +28,7 @@ import android.os.StrictMode;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.fsck.k9.Account.SortType;
+import com.fsck.k9.activity.MessageList.SortType;
 import com.fsck.k9.activity.MessageCompose;
 import com.fsck.k9.activity.UpgradeDatabases;
 import com.fsck.k9.controller.MessagingController;
@@ -135,7 +135,7 @@ public class K9 extends Application {
      * Log.d, including protocol dumps.
      * Controlled by Preferences at run-time
      */
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 
     /**
      * Should K-9 log the conversation it has over the wire with

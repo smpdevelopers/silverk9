@@ -50,6 +50,14 @@ public class ManageIdentities extends ChooseIdentity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.new_identity) {
+            Intent intent = new Intent(ManageIdentities.this, EditIdentity.class);
+            intent.putExtra(EditIdentity.EXTRA_ACCOUNT, mAccount.getUuid());
+            startActivityForResult(intent, ACTIVITY_EDIT_IDENTITY);
+        }
+        else
+            return super.onOptionsItemSelected(item);
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case R.id.new_identity:
             Intent intent = new Intent(ManageIdentities.this, EditIdentity.class);
@@ -58,7 +66,7 @@ public class ManageIdentities extends ChooseIdentity {
             break;
         default:
             return super.onOptionsItemSelected(item);
-        }
+        }*/
         return true;
     }
 
@@ -72,6 +80,41 @@ public class ManageIdentities extends ChooseIdentity {
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo)item.getMenuInfo();
+        if (item.getItemId() == R.id.edit)
+                editItem(menuInfo.position);
+        else if (item.getItemId() == R.id.up) {
+            if (menuInfo.position > 0) {
+                Identity identity = identities.remove(menuInfo.position);
+                identities.add(menuInfo.position - 1, identity);
+                mIdentitiesChanged = true;
+                refreshView();
+            }
+        }
+        else if (item.getItemId() == R.id.down) {
+            if (menuInfo.position < identities.size() - 1) {
+                Identity identity = identities.remove(menuInfo.position);
+                identities.add(menuInfo.position + 1, identity);
+                mIdentitiesChanged = true;
+                refreshView();
+            }
+        }
+        else if (item.getItemId() == R.id.top) {
+            Identity identity = identities.remove(menuInfo.position);
+            identities.add(0, identity);
+            mIdentitiesChanged = true;
+            refreshView();
+        }
+        else if (item.getItemId() == R.id.remove) {
+                if (identities.size() > 1) {
+                    identities.remove(menuInfo.position);
+                    mIdentitiesChanged = true;
+                    refreshView();
+                } else {
+                    Toast.makeText(this, getString(R.string.no_removable_identity),
+                            Toast.LENGTH_LONG).show();
+                }
+        }
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case R.id.edit:
             editItem(menuInfo.position);
@@ -109,7 +152,7 @@ public class ManageIdentities extends ChooseIdentity {
                                Toast.LENGTH_LONG).show();
             }
             break;
-        }
+        }*/
         return true;
     }
 

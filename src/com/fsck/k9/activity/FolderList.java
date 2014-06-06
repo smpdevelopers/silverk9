@@ -1,11 +1,5 @@
 package com.fsck.k9.activity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,9 +39,7 @@ import com.fsck.k9.FontSizes;
 import com.fsck.k9.K9;
 import com.fsck.k9.Preferences;
 import com.fsck.k9.R;
-import com.fsck.k9.activity.setup.AccountSettings;
 import com.fsck.k9.activity.setup.FolderSettings;
-import com.fsck.k9.activity.setup.Prefs;
 import com.fsck.k9.controller.MessagingController;
 import com.fsck.k9.controller.MessagingListener;
 import com.fsck.k9.helper.SizeFormatter;
@@ -61,6 +53,12 @@ import com.fsck.k9.search.LocalSearch;
 import com.fsck.k9.search.SearchSpecification.Attribute;
 import com.fsck.k9.search.SearchSpecification.Searchfield;
 import com.fsck.k9.service.MailService;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 import de.cketti.library.changelog.ChangeLog;
 
@@ -389,11 +387,6 @@ public class FolderList extends K9ListActivity {
             return true;
         }
 
-        case KeyEvent.KEYCODE_S: {
-            onEditAccount();
-            return true;
-        }
-
         case KeyEvent.KEYCODE_H: {
             Toast toast = Toast.makeText(this, R.string.folder_list_help_key, Toast.LENGTH_LONG);
             toast.show();
@@ -439,13 +432,6 @@ public class FolderList extends K9ListActivity {
 
     }
 
-    private void onEditPrefs() {
-        Prefs.actionPrefs(this);
-    }
-    private void onEditAccount() {
-        AccountSettings.actionSettings(this, mAccount);
-    }
-
     private void onAccounts() {
         Accounts.listAccounts(this);
         finish();
@@ -488,6 +474,57 @@ public class FolderList extends K9ListActivity {
     }
 
     @Override public boolean onOptionsItemSelected(MenuItem item) {
+        if  (item.getItemId() == android.R.id.home ) {
+            onAccounts();
+            return true;
+        }
+        else if  (item.getItemId() == R.id.search) {
+            onSearchRequested();
+            return true;
+        }
+        else if  (item.getItemId() == R.id.compose) {
+            MessageCompose.actionCompose(this, mAccount);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.check_mail) {
+            MessagingController.getInstance(getApplication()).checkMail(this, mAccount, true, true, mAdapter.mListener);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.send_messages) {
+            MessagingController.getInstance(getApplication()).sendPendingMessages(mAccount, null);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.list_folders) {
+            onRefresh(REFRESH_REMOTE);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.empty_trash) {
+            onEmptyTrash(mAccount);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.compact) {
+            onCompact(mAccount);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.display_1st_class) {
+            setDisplayMode(FolderMode.FIRST_CLASS);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.display_1st_and_2nd_class) {
+            setDisplayMode(FolderMode.FIRST_AND_SECOND_CLASS);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.display_not_second_class) {
+            setDisplayMode(FolderMode.NOT_SECOND_CLASS);
+            return true;
+        }
+        else if  (item.getItemId() == R.id.display_all) {
+            setDisplayMode(FolderMode.ALL);
+            return true;
+        }
+        else
+            return super.onOptionsItemSelected(item);
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case android.R.id.home:
             onAccounts();
@@ -557,13 +594,13 @@ public class FolderList extends K9ListActivity {
         }
         default:
             return super.onOptionsItemSelected(item);
-        }
+        }*/
     }
 
     @Override
     public boolean onSearchRequested() {
          Bundle appData = new Bundle();
-         appData.putString(MessageList.EXTRA_SEARCH_ACCOUNT, mAccount.getUuid());
+        // appData.putString(MessageList.EXTRA_SEARCH_ACCOUNT, mAccount.getUuid());
          startSearch(null, false, appData, false);
          return true;
      }
@@ -572,7 +609,7 @@ public class FolderList extends K9ListActivity {
         LocalSearch search = new LocalSearch(folder);
         search.addAccountUuid(mAccount.getUuid());
         search.addAllowedFolder(folder);
-        MessageList.actionDisplaySearch(this, search, false, false);
+        //MessageList.actionDisplaySearch(this, search, false, false);
     }
 
     private void onCompact(Account account) {
@@ -622,6 +659,13 @@ public class FolderList extends K9ListActivity {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item .getMenuInfo();
         FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getItem(info.position);
 
+        if (item.getItemId() == R.id.clear_local_folder)
+            onClearFolder(mAccount, folder.name);
+        else if (item.getItemId() == R.id.refresh_folder)
+            checkMail(folder);
+        else if (item.getItemId() == R.id.folder_settings)
+            FolderSettings.actionSettings(this, mAccount, folder.name);
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case R.id.clear_local_folder:
             onClearFolder(mAccount, folder.name);
@@ -632,7 +676,7 @@ public class FolderList extends K9ListActivity {
         case R.id.folder_settings:
             FolderSettings.actionSettings(this, mAccount, folder.name);
             break;
-        }
+        }*/
 
         return super.onContextItemSelected(item);
     }
@@ -1238,7 +1282,7 @@ public class FolderList extends K9ListActivity {
 
         @Override
         public void onClick(View v) {
-            MessageList.actionDisplaySearch(FolderList.this, search, true, false);
+           // MessageList.actionDisplaySearch(FolderList.this, search, true, false);
         }
     }
 }

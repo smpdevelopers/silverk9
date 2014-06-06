@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fsck.k9.Account;
 import com.fsck.k9.Preferences;
+import com.fsck.k9.cache.EmailProviderCache;
 import com.fsck.k9.cache.EmailProviderCacheCursor;
 import com.fsck.k9.helper.StringUtils;
 import com.fsck.k9.helper.Utility;
@@ -24,10 +25,15 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
+import android.database.CharArrayBuffer;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Content Provider used to display the message list etc.
@@ -53,9 +59,10 @@ public class EmailProvider extends ContentProvider {
      * Constants that are used for the URI matching.
      */
     private static final int MESSAGE_BASE = 0;
-    private static final int MESSAGES = MESSAGE_BASE;
-    private static final int MESSAGES_THREADED = MESSAGE_BASE + 1;
-    private static final int MESSAGES_THREAD = MESSAGE_BASE + 2;
+    private static final int MESSAGES_FOR_LIBRARY = MESSAGE_BASE;
+    private static final int MESSAGES = MESSAGES_FOR_LIBRARY + 1;
+    private static final int MESSAGES_THREADED = MESSAGES + 1;
+    private static final int MESSAGES_THREAD = MESSAGES_THREADED + 2;
 
     private static final int STATS_BASE = 100;
     private static final int STATS = STATS_BASE;
@@ -111,6 +118,8 @@ public class EmailProvider extends ContentProvider {
 
     static {
         UriMatcher matcher = sUriMatcher;
+
+        matcher.addURI(AUTHORITY, "messages/*", MESSAGES_FOR_LIBRARY);
 
         matcher.addURI(AUTHORITY, "account/*/messages", MESSAGES);
         matcher.addURI(AUTHORITY, "account/*/messages/threaded", MESSAGES_THREADED);
@@ -218,6 +227,7 @@ public class EmailProvider extends ContentProvider {
         ContentResolver contentResolver = getContext().getContentResolver();
         Cursor cursor = null;
         switch (match) {
+            case MESSAGES_FOR_LIBRARY:
             case MESSAGES:
             case MESSAGES_THREADED:
             case MESSAGES_THREAD: {
@@ -236,7 +246,7 @@ public class EmailProvider extends ContentProvider {
 
                 String[] dbProjection = dbColumnNames.toArray(new String[0]);
 
-                if (match == MESSAGES) {
+                if (match == MESSAGES || match == MESSAGES_FOR_LIBRARY) {
                     cursor = getMessages(accountUuid, dbProjection, selection, selectionArgs,
                             sortOrder);
                 } else if (match == MESSAGES_THREADED) {
@@ -251,6 +261,12 @@ public class EmailProvider extends ContentProvider {
 
                 Uri notificationUri = Uri.withAppendedPath(CONTENT_URI, "account/" + accountUuid +
                         "/messages");
+                if(true && null == cursor) {
+                    Log.e("EmailProvider", "query: cursor is null. skipping...");
+                    EmailProviderCache epc = EmailProviderCache.getCache("0", getContext());
+                    epc.NotifyChange();
+                    return cursor;
+                }
                 cursor.setNotificationUri(contentResolver, notificationUri);
 
                 cursor = new SpecialColumnsCursor(new IdTrickeryCursor(cursor), projection,
@@ -293,7 +309,7 @@ public class EmailProvider extends ContentProvider {
 
     protected Cursor getMessages(String accountUuid, final String[] projection,
             final String selection, final String[] selectionArgs, final String sortOrder) {
-
+/*
         Account account = getAccount(accountUuid);
         LockableDatabase database = getDatabase(account);
 
@@ -358,7 +374,13 @@ public class EmailProvider extends ContentProvider {
             });
         } catch (UnavailableStorageException e) {
             throw new RuntimeException("Storage not available", e);
-        }
+        }*/
+        Log.e("EmailProvider", "getMessage");
+        Uri friends = MessagerProvider.CONTENT_URI;
+        Cursor cursor = getContext().getContentResolver().query(friends, null, null, null, MessagerProvider.NAME);
+
+        //DIMA TODO: add getting info from DB
+        return  cursor;
     }
 
     protected Cursor getThreadedMessages(String accountUuid, final String[] projection,
@@ -652,6 +674,7 @@ public class EmailProvider extends ContentProvider {
 
         @Override
         public int getColumnIndexOrThrow(String columnName) {
+            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             if ("_id".equals(columnName)) {
                 return super.getColumnIndexOrThrow("id");
             }

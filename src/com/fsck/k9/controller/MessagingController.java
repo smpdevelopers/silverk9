@@ -4942,12 +4942,12 @@ public class MessagingController implements Runnable {
         } else {
             String initialFolder = message.getFolder().getName();
             /* only go to folder if all messages are in the same folder, else go to folder list */
-            for (MessageReference ref : allRefs) {
+           /* for (MessageReference ref : allRefs) {
                 if (!TextUtils.equals(initialFolder, ref.folderName)) {
                     initialFolder = null;
                     break;
                 }
-            }
+            }*/
 
             stack = buildMessageListBackStack(context, account, initialFolder);
         }
@@ -4994,7 +4994,7 @@ public class MessagingController implements Runnable {
     private TaskStackBuilder buildUnreadBackStack(Context context, final Account account) {
         TaskStackBuilder stack = buildAccountsBackStack(context);
         LocalSearch search = Accounts.createUnreadSearch(context, account);
-        stack.addNextIntent(MessageList.intentDisplaySearch(context, search, true, false, false));
+        //stack.addNextIntent(MessageList.intentDisplaySearch(context, search, true, false, false));
         return stack;
     }
 
@@ -5007,16 +5007,17 @@ public class MessagingController implements Runnable {
             LocalSearch search = new LocalSearch(folder);
             search.addAllowedFolder(folder);
             search.addAccountUuid(account.getUuid());
-            stack.addNextIntent(MessageList.intentDisplaySearch(context, search, false, true, true));
+           // stack.addNextIntent(MessageList.intentDisplaySearch(context, search, false, true, true));
         }
         return stack;
     }
 
     private TaskStackBuilder buildMessageViewBackStack(Context context, MessageReference message) {
-        Account account = Preferences.getPreferences(context).getAccount(message.accountUuid);
+       /* Account account = Preferences.getPreferences(context).getAccount(message.accountUuid);
         TaskStackBuilder stack = buildMessageListBackStack(context, account, message.folderName);
         stack.addNextIntent(MessageList.actionDisplayMessageIntent(context, message));
-        return stack;
+        return stack;*/
+        return null;
     }
 
     private boolean skipFolderListInBackStack(Context context, Account account, String folder) {

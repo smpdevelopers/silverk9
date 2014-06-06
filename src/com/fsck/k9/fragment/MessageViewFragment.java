@@ -1,15 +1,8 @@
 package com.fsck.k9.fragment;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.Locale;
-
-import org.openintents.openpgp.OpenPgpSignatureResult;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -26,46 +19,31 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.fsck.k9.Account;
 import com.fsck.k9.K9;
-import com.fsck.k9.Preferences;
 import com.fsck.k9.R;
-import com.fsck.k9.activity.ChooseFolder;
-import com.fsck.k9.activity.MessageReference;
-import com.fsck.k9.controller.MessagingController;
 import com.fsck.k9.controller.MessagingListener;
-import com.fsck.k9.crypto.CryptoProvider.CryptoDecryptCallback;
 import com.fsck.k9.crypto.PgpData;
 import com.fsck.k9.fragment.ConfirmationDialogFragment.ConfirmationDialogFragmentListener;
-import com.fsck.k9.helper.FileBrowserHelper;
-import com.fsck.k9.helper.FileBrowserHelper.FileBrowserFailOverCallback;
 import com.fsck.k9.mail.Flag;
 import com.fsck.k9.mail.Message;
-import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.Part;
-import com.fsck.k9.mail.store.LocalStore.LocalMessage;
-import com.fsck.k9.view.AttachmentView;
-import com.fsck.k9.view.AttachmentView.AttachmentFileDownloadCallback;
 import com.fsck.k9.view.MessageHeader;
 import com.fsck.k9.view.SingleMessageView;
 
-
-public class MessageViewFragment extends SherlockFragment implements OnClickListener,
-        CryptoDecryptCallback, ConfirmationDialogFragmentListener {
-
-    private static final String ARG_REFERENCE = "reference";
-
-    private static final String STATE_MESSAGE_REFERENCE = "reference";
-    private static final String STATE_PGP_DATA = "pgpData";
-
-    private static final int ACTIVITY_CHOOSE_FOLDER_MOVE = 1;
-    private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
-    private static final int ACTIVITY_CHOOSE_DIRECTORY = 3;
+import java.util.Locale;
 
 
-    public static MessageViewFragment newInstance(MessageReference reference) {
+public class MessageViewFragment extends SherlockFragment implements ConfirmationDialogFragmentListener {
+    private static final boolean DEBUG = true;
+
+    private static final String ARG_MSG_ID = "_id";
+
+    public static MessageViewFragment newInstance(Integer msgId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        + ": msgId " + msgId);
         MessageViewFragment fragment = new MessageViewFragment();
 
         Bundle args = new Bundle();
-        args.putParcelable(ARG_REFERENCE, reference);
+        args.putInt(ARG_MSG_ID, msgId);
         fragment.setArguments(args);
 
         return fragment;
@@ -73,26 +51,13 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
 
 
     private SingleMessageView mMessageView;
-    private PgpData mPgpData;
-    private Account mAccount;
-    private MessageReference mMessageReference;
+
+    private Integer mMsgId;
     private Message mMessage;
-    private MessagingController mController;
-    private Listener mListener = new Listener();
+
+    //private Listener mListener = new Listener();
     private MessageViewHandler mHandler = new MessageViewHandler();
     private LayoutInflater mLayoutInflater;
-
-    /** this variable is used to save the calling AttachmentView
-     *  until the onActivityResult is called.
-     *  => with this reference we can identity the caller
-     */
-    private AttachmentView attachmentTmpStore;
-
-    /**
-     * Used to temporarily store the destination folder for refile operations if a confirmation
-     * dialog is shown.
-     */
-    private String mDstFolder;
 
     private MessageViewFragmentListener mFragmentListener;
 
@@ -116,16 +81,6 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
                 }
             });
         }
-
-        public void addAttachment(final View attachmentView) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    mMessageView.addAttachment(attachmentView);
-                }
-            });
-        }
-
         /* A helper for a set of "show a toast" methods */
         private void showToast(final String message, final int toastLength)  {
             post(new Runnable() {
@@ -169,6 +124,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         mContext = activity.getApplicationContext();
 
@@ -183,31 +139,34 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        + ": savedInstance " + savedInstanceState);
 
         // This fragments adds options to the action bar
         setHasOptionsMenu(true);
 
-        mController = MessagingController.getInstance(getActivity().getApplication());
         mInitialized = true;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         Context context = new ContextThemeWrapper(inflater.getContext(),
                 K9.getK9ThemeResourceId(K9.getK9MessageViewTheme()));
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = mLayoutInflater.inflate(R.layout.message, container, false);
 
-
         mMessageView = (SingleMessageView) view.findViewById(R.id.message_view);
 
         //set a callback for the attachment view. With this callback the attachmentview
         //request the start of a filebrowser activity.
-        mMessageView.setAttachmentCallback(new AttachmentFileDownloadCallback() {
+        /*mMessageView.setAttachmentCallback(new AttachmentFileDownloadCallback() {
 
             @Override
             public void showFileBrowser(final AttachmentView caller) {
+                if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                + ": ERROR ENTERING");
                 FileBrowserHelper.getInstance()
                 .showFileBrowserActivity(MessageViewFragment.this,
                                          null,
@@ -220,20 +179,21 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
 
                 @Override
                 public void onPathEntered(String path) {
-                    attachmentTmpStore.writeFile(new File(path));
+                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                    + ": ERROR ENTERING");
+                    //attachmentTmpStore.writeFile(new File(path));
                 }
 
                 @Override
                 public void onCancel() {
+                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                            + ": ERROR ENTERING");
                     // canceled, do nothing
                 }
             };
-        });
+        });*/
 
         mMessageView.initialize(this);
-        mMessageView.downloadRemainderButton().setOnClickListener(this);
-
-        mFragmentListener.messageHeaderViewAvailable(mMessageView.getMessageHeaderView());
 
         return view;
     }
@@ -241,49 +201,53 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
-        MessageReference messageReference;
-        if (savedInstanceState != null) {
-            mPgpData = (PgpData) savedInstanceState.get(STATE_PGP_DATA);
-            messageReference = (MessageReference) savedInstanceState.get(STATE_MESSAGE_REFERENCE);
-        } else {
-            Bundle args = getArguments();
-            messageReference = (MessageReference) args.getParcelable(ARG_REFERENCE);
-        }
+        Bundle args = getArguments();
+        //MessageReference messageReference;
+        //messageReference = new MessageReference(args.getInt(ARG_MSG_ID));
 
-        displayMessage(messageReference, (mPgpData == null));
+        displayMessage(args.getInt(ARG_MSG_ID));
     }
+/*
+@Override
+public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+    outState.putInt(ARG_MSG_ID, mMsgId);
+}
+*/
+/*
+public void displayMessage(MessageReference ref) {
+    displayMessage(ref, true);
+}*/
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_MESSAGE_REFERENCE, mMessageReference);
-        outState.putSerializable(STATE_PGP_DATA, mPgpData);
-    }
-
-    public void displayMessage(MessageReference ref) {
-        displayMessage(ref, true);
-    }
-
-    private void displayMessage(MessageReference ref, boolean resetPgpData) {
-        mMessageReference = ref;
-        if (K9.DEBUG) {
-            Log.d(K9.LOG_TAG, "MessageView displaying message " + mMessageReference);
-        }
-
-        Context appContext = getActivity().getApplicationContext();
-        mAccount = Preferences.getPreferences(appContext).getAccount(mMessageReference.accountUuid);
-
-        if (resetPgpData) {
-            // start with fresh, empty PGP data
-            mPgpData = new PgpData();
-        }
+    private void displayMessage(Integer msgId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        + ": msgId " + msgId);
+        mMsgId = msgId;
 
         // Clear previous message
         mMessageView.resetView();
         mMessageView.resetHeaderView();
 
-        mController.loadMessageForView(mAccount, mMessageReference.folderName, mMessageReference.uid, mListener);
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                + ": set messages which should be shown!!!!!");
+        String text = "<img src=\"http://www.w3schools.com/images/pulpit.jpg\" alt=\"Smiley face\" width=\"200\" height=\"200\">";
+        mMessageView.showStatusMessage(text);
+        mMessageView.setDefaultHeaders();
+       // if (subject == null || subject.equals("")) {
+        displayMessageSubject(mContext.getString(R.string.general_no_subject));
+      /*  } else {
+            displayMessageSubject(clonedMessage.getSubject());
+        }*/
+        mMessageView.setOnFlagListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                onToggleFlagged();
+            }
+        });
 
         mFragmentListener.updateMenu();
     }
@@ -292,33 +256,25 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
      * Called from UI thread when user select Delete
      */
     public void onDelete() {
-        if (K9.confirmDelete() || (K9.confirmDeleteStarred() && mMessage.isSet(Flag.FLAGGED))) {
-            showDialog(R.id.dialog_confirm_delete);
-        } else {
-            delete();
-        }
-    }
-
-    public void onToggleAllHeadersView() {
-        mMessageView.getMessageHeaderView().onShowAdditionalHeaders();
-    }
-
-    public boolean allHeadersVisible() {
-        return mMessageView.getMessageHeaderView().additionalHeadersVisible();
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        showDialog(R.id.dialog_confirm_delete);
     }
 
     private void delete() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessage != null) {
             // Disable the delete button after it's tapped (to try to prevent
             // accidental clicks)
             mFragmentListener.disableDeleteAction();
             Message messageToDelete = mMessage;
             mFragmentListener.showNextMessageOrReturn();
-            mController.deleteMessages(Collections.singletonList(messageToDelete), null);
+            //mController.deleteMessages(Collections.singletonList(messageToDelete), null);
         }
     }
 
     public void onRefile(String dstFolder) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        /*
         if (!mController.isMoveCapable(mAccount)) {
             return;
         }
@@ -338,84 +294,47 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
         } else {
             refileMessage(dstFolder);
         }
+        */
     }
 
     private void refileMessage(String dstFolder) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        /*
         String srcFolder = mMessageReference.folderName;
         Message messageToMove = mMessage;
         mFragmentListener.showNextMessageOrReturn();
         mController.moveMessage(mAccount, srcFolder, messageToMove, dstFolder, null);
+        */
     }
 
     public void onReply() {
         if (mMessage != null) {
-            mFragmentListener.onReply(mMessage, mPgpData);
-        }
-    }
-
-    public void onReplyAll() {
-        if (mMessage != null) {
-            mFragmentListener.onReplyAll(mMessage, mPgpData);
+            mFragmentListener.onReply(mMessage, null/*, mPgpData*/);
         }
     }
 
     public void onForward() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mMessage != null) {
-            mFragmentListener.onForward(mMessage, mPgpData);
+            mFragmentListener.onForward(mMessage, null/*, mPgpData*/);
         }
     }
 
     public void onToggleFlagged() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        /*DIMA TODO: called in case star has been selected
         if (mMessage != null) {
             boolean newState = !mMessage.isSet(Flag.FLAGGED);
             mController.setFlag(mAccount, mMessage.getFolder().getName(),
                     new Message[] { mMessage }, Flag.FLAGGED, newState);
             mMessageView.setHeaders(mMessage, mAccount);
         }
+        */
     }
 
-    public void onMove() {
-        if ((!mController.isMoveCapable(mAccount))
-                || (mMessage == null)) {
-            return;
-        }
-        if (!mController.isMoveCapable(mMessage)) {
-            Toast toast = Toast.makeText(getActivity(), R.string.move_copy_cannot_copy_unsynced_message, Toast.LENGTH_LONG);
-            toast.show();
-            return;
-        }
-
-        startRefileActivity(ACTIVITY_CHOOSE_FOLDER_MOVE);
-
-    }
-
-    public void onCopy() {
-        if ((!mController.isCopyCapable(mAccount))
-                || (mMessage == null)) {
-            return;
-        }
-        if (!mController.isCopyCapable(mMessage)) {
-            Toast toast = Toast.makeText(getActivity(), R.string.move_copy_cannot_copy_unsynced_message, Toast.LENGTH_LONG);
-            toast.show();
-            return;
-        }
-
-        startRefileActivity(ACTIVITY_CHOOSE_FOLDER_COPY);
-    }
-
-    public void onArchive() {
-        onRefile(mAccount.getArchiveFolderName());
-    }
-
-    public void onSpam() {
-        onRefile(mAccount.getSpamFolderName());
-    }
-
-    public void onSelectText() {
-        mMessageView.beginSelectingText();
-    }
-
+/* DIMA TODO: does it called when folder must be change
     private void startRefileActivity(int activity) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         Intent intent = new Intent(getActivity(), ChooseFolder.class);
         intent.putExtra(ChooseFolder.EXTRA_ACCOUNT, mAccount.getUuid());
         intent.putExtra(ChooseFolder.EXTRA_CUR_FOLDER, mMessageReference.folderName);
@@ -423,18 +342,20 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
         intent.putExtra(ChooseFolder.EXTRA_MESSAGE, mMessageReference);
         startActivityForResult(intent, activity);
     }
-
+*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (mAccount.getCryptoProvider().onDecryptActivityResult(this, requestCode, resultCode, data, mPgpData)) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+
+        /*if (mAccount.getCryptoProvider().onDecryptActivityResult(this, requestCode, resultCode, data, mPgpData)) {
             return;
-        }
+        }*/
 
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-
+/*
         switch (requestCode) {
             case ACTIVITY_CHOOSE_DIRECTORY: {
                 if (resultCode == Activity.RESULT_OK && data != null) {
@@ -473,16 +394,12 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
                 }
                 break;
             }
-        }
-    }
-
-    public void onSendAlternate() {
-        if (mMessage != null) {
-            mController.sendAlternate(getActivity(), mAccount, mMessage);
-        }
+        }*/
     }
 
     public void onToggleRead() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        /*
         if (mMessage != null) {
             mController.setFlag(mAccount, mMessage.getFolder().getName(),
                     new Message[] { mMessage }, Flag.SEEN, !mMessage.isSet(Flag.SEEN));
@@ -491,18 +408,22 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             displayMessageSubject(subject);
             mFragmentListener.updateMenu();
         }
+        */
     }
 
-    private void onDownloadRemainder() {
-        if (mMessage.isSet(Flag.X_DOWNLOADED_FULL)) {
-            return;
-        }
-        mMessageView.downloadRemainderButton().setEnabled(false);
-        mController.loadMessageForViewRemote(mAccount, mMessageReference.folderName, mMessageReference.uid, mListener);
-    }
-
+/*
     @Override
     public void onClick(View view) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        + ": ERROR ENTERING");
+
+        if (view.getId() == R.id.download) {
+                ((AttachmentView)view).saveFile();
+        }
+        else if (view.getId() == R.id.download_remainder) {
+                onDownloadRemainder();
+        }
+         DIMA: Change for using in library
         switch (view.getId()) {
             case R.id.download: {
                 ((AttachmentView)view).saveFile();
@@ -514,7 +435,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             }
         }
     }
-
+*/
     private void setProgress(boolean enable) {
         if (mFragmentListener != null) {
             mFragmentListener.setProgress(enable);
@@ -522,29 +443,20 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     }
 
     private void displayMessageSubject(String subject) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mFragmentListener != null) {
             mFragmentListener.displayMessageSubject(subject);
         }
-    }
-
-    public void moveMessage(MessageReference reference, String destFolderName) {
-        mController.moveMessage(mAccount, mMessageReference.folderName, mMessage,
-                destFolderName, null);
-    }
-
-    public void copyMessage(MessageReference reference, String destFolderName) {
-        mController.copyMessage(mAccount, mMessageReference.folderName, mMessage,
-                destFolderName, null);
     }
 
     class Listener extends MessagingListener {
         @Override
         public void loadMessageForViewHeadersAvailable(final Account account, String folder, String uid,
                 final Message message) {
-            if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
+           /* if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
                     || !mMessageReference.accountUuid.equals(account.getUuid())) {
                 return;
-            }
+            }*/
 
             /*
              * Clone the message object because the original could be modified by
@@ -563,6 +475,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                     if (!clonedMessage.isSet(Flag.X_DOWNLOADED_FULL) &&
                             !clonedMessage.isSet(Flag.X_DOWNLOADED_PARTIAL)) {
                         String text = mContext.getString(R.string.message_view_downloading);
@@ -578,6 +491,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
                     mMessageView.setOnFlagListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
                             onToggleFlagged();
                         }
                     });
@@ -588,34 +502,38 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
         @Override
         public void loadMessageForViewBodyAvailable(final Account account, String folder,
                 String uid, final Message message) {
-            if (!mMessageReference.uid.equals(uid) ||
+          /*  if (!mMessageReference.uid.equals(uid) ||
                     !mMessageReference.folderName.equals(folder) ||
                     !mMessageReference.accountUuid.equals(account.getUuid())) {
                 return;
-            }
+            }*/
 
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+                    /*
                     try {
                         mMessage = message;
                         mMessageView.setMessage(account, (LocalMessage) message, mPgpData,
                                 mController, mListener);
-                        mFragmentListener.updateMenu();
-
+                       */ mFragmentListener.updateMenu();
+/*
                     } catch (MessagingException e) {
                         Log.v(K9.LOG_TAG, "loadMessageForViewBodyAvailable", e);
                     }
+                    */
+
                 }
             });
         }
 
         @Override
         public void loadMessageForViewFailed(Account account, String folder, String uid, final Throwable t) {
-            if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
+           /* if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
                     || !mMessageReference.accountUuid.equals(account.getUuid())) {
                 return;
-            }
+            }*/
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -633,27 +551,28 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             });
         }
 
+
         @Override
         public void loadMessageForViewFinished(Account account, String folder, String uid, final Message message) {
-            if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
+         /*   if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
                     || !mMessageReference.accountUuid.equals(account.getUuid())) {
                 return;
-            }
+            }*/
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     setProgress(false);
-                    mMessageView.setShowDownloadButton(message);
                 }
             });
         }
 
+
         @Override
         public void loadMessageForViewStarted(Account account, String folder, String uid) {
-            if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
+        /*    if (!mMessageReference.uid.equals(uid) || !mMessageReference.folderName.equals(folder)
                     || !mMessageReference.accountUuid.equals(account.getUuid())) {
                 return;
-            }
+            }*/
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -670,7 +589,6 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMessageView.setAttachmentsEnabled(false);
                     showDialog(R.id.dialog_attachment_progress);
                     if (requiresDownload) {
                         mHandler.fetchingAttachment();
@@ -687,7 +605,9 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMessageView.setAttachmentsEnabled(true);
+                    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                    + ": ERROR ENTERING");
+                    /*mMessageView.setAttachmentsEnabled(true);
                     removeDialog(R.id.dialog_attachment_progress);
                     Object[] params = (Object[]) tag;
                     boolean download = (Boolean) params[0];
@@ -696,7 +616,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
                         attachment.writeFile();
                     } else {
                         attachment.showFile();
-                    }
+                    }*/
                 }
             });
         }
@@ -709,47 +629,53 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mMessageView.setAttachmentsEnabled(true);
                     removeDialog(R.id.dialog_attachment_progress);
                     mHandler.networkError();
                 }
             });
         }
     }
-    
-    /**
-     * Used by MessageOpenPgpView
-     */
-    public void setMessageWithOpenPgp(String decryptedData, OpenPgpSignatureResult signatureResult) {
-        try {
-            // TODO: get rid of PgpData?
-            PgpData data = new PgpData();
-            data.setDecryptedData(decryptedData);
-            data.setSignatureResult(signatureResult);
-            mMessageView.setMessage(mAccount, (LocalMessage) mMessage, data, mController, mListener);
-        } catch (MessagingException e) {
-            Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
-        }
+
+
+/**
+ * Used by MessageOpenPgpView
+ */
+/*public void setMessageWithOpenPgp(String decryptedData, OpenPgpSignatureResult signatureResult) {
+    if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+
+    try {
+        // TODO: get rid of PgpData?
+        PgpData data = new PgpData();
+        data.setDecryptedData(decryptedData);
+        data.setSignatureResult(signatureResult);
+        mMessageView.setMessage(mAccount, (LocalMessage) mMessage, data, mController, mListener);
+    } catch (MessagingException e) {
+        Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
     }
 
-    // This REALLY should be in MessageCryptoView
-    @Override
-    public void onDecryptDone(PgpData pgpData) {
-        Account account = mAccount;
-        LocalMessage message = (LocalMessage) mMessage;
-        MessagingController controller = mController;
-        Listener listener = mListener;
-        try {
-            mMessageView.setMessage(account, message, pgpData, controller, listener);
-        } catch (MessagingException e) {
-            Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
-        }
+}
+
+// This REALLY should be in MessageCryptoView
+@Override
+public void onDecryptDone(PgpData pgpData) {
+
+    Account account = mAccount;
+    LocalMessage message = (LocalMessage) mMessage;
+    MessagingController controller = mController;
+    Listener listener = mListener;
+    try {
+        mMessageView.setMessage(account, message, pgpData, controller, listener);
+    } catch (MessagingException e) {
+        Log.e(K9.LOG_TAG, "displayMessageBody failed", e);
     }
+}
+*/
 
     private void showDialog(int dialogId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         DialogFragment fragment;
-        switch (dialogId) {
-            case R.id.dialog_confirm_delete: {
+
+        if (dialogId == R.id.dialog_confirm_delete) {
                 String title = getString(R.string.dialog_confirm_delete_title);
                 String message = getString(R.string.dialog_confirm_delete_message);
                 String confirmText = getString(R.string.dialog_confirm_delete_confirm_button);
@@ -757,9 +683,8 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
 
                 fragment = ConfirmationDialogFragment.newInstance(dialogId, title, message,
                         confirmText, cancelText);
-                break;
-            }
-            case R.id.dialog_confirm_spam: {
+        }/*
+        else if (dialogId == R.id.dialog_confirm_spam) {
                 String title = getString(R.string.dialog_confirm_spam_title);
                 String message = getResources().getQuantityString(R.plurals.dialog_confirm_spam_message, 1);
                 String confirmText = getString(R.string.dialog_confirm_spam_confirm_button);
@@ -767,16 +692,13 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
 
                 fragment = ConfirmationDialogFragment.newInstance(dialogId, title, message,
                         confirmText, cancelText);
-                break;
-            }
-            case R.id.dialog_attachment_progress: {
-                String message = getString(R.string.dialog_attachment_progress_title);
-                fragment = ProgressDialogFragment.newInstance(null, message);
-                break;
-            }
-            default: {
+        }
+        else if (dialogId == R.id.dialog_attachment_progress) {
+            String message = getString(R.string.dialog_attachment_progress_title);
+            fragment = ProgressDialogFragment.newInstance(null, message);
+        }*/
+        else {
                 throw new RuntimeException("Called showDialog(int) with unknown dialog id.");
-            }
         }
 
         fragment.setTargetFragment(this, dialogId);
@@ -784,6 +706,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     }
 
     private void removeDialog(int dialogId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         FragmentManager fm = getFragmentManager();
 
         if (fm == null || isRemoving() || isDetached()) {
@@ -803,63 +726,65 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
     }
 
     private String getDialogTag(int dialogId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return String.format(Locale.US, "dialog-%d", dialogId);
     }
 
     public void zoom(KeyEvent event) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         mMessageView.zoom(event);
     }
 
     @Override
     public void doPositiveClick(int dialogId) {
-        switch (dialogId) {
-            case R.id.dialog_confirm_delete: {
-                delete();
-                break;
-            }
-            case R.id.dialog_confirm_spam: {
-                refileMessage(mDstFolder);
-                mDstFolder = null;
-                break;
-            }
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        if (dialogId == R.id.dialog_confirm_delete) {
+            delete();
         }
     }
 
     @Override
     public void doNegativeClick(int dialogId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /* do nothing */
     }
 
     @Override
     public void dialogCancelled(int dialogId) {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         /* do nothing */
     }
 
     /**
-     * Get the {@link MessageReference} of the currently displayed message.
+     * Get the {@link java.lang.Integer} of the currently displayed message.
      */
-    public MessageReference getMessageReference() {
-        return mMessageReference;
+    public Integer getMsgId() {
+        return mMsgId;
     }
 
     public boolean isMessageRead() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (mMessage != null) ? mMessage.isSet(Flag.SEEN) : false;
     }
-
+/*
     public boolean isCopyCapable() {
-        return mController.isCopyCapable(mAccount);
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        return false; //mController.isCopyCapable(mAccount);
     }
 
     public boolean isMoveCapable() {
-        return mController.isMoveCapable(mAccount);
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        return false; //mController.isMoveCapable(mAccount);
     }
 
     public boolean canMessageBeArchived() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (!mMessageReference.folderName.equals(mAccount.getArchiveFolderName())
                 && mAccount.hasArchiveFolder());
     }
 
     public boolean canMessageBeMovedToSpam() {
+        if (DEBUG) Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         return (!mMessageReference.folderName.equals(mAccount.getSpamFolderName())
                 && mAccount.hasSpamFolder());
     }
@@ -869,6 +794,7 @@ public class MessageViewFragment extends SherlockFragment implements OnClickList
             displayMessageSubject(mMessage.getSubject());
         }
     }
+*/
 
     public interface MessageViewFragmentListener {
         public void onForward(Message mMessage, PgpData mPgpData);

@@ -3,6 +3,7 @@ package com.fsck.k9.helper;
 import java.util.Comparator;
 
 import android.database.Cursor;
+import android.util.Log;
 
 
 public class MergeCursorWithUniqueId extends MergeCursor {
@@ -34,6 +35,7 @@ public class MergeCursorWithUniqueId extends MergeCursor {
 
     @Override
     public int getColumnIndex(String columnName) {
+        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if ("_id".equals(columnName)) {
             return getUniqueIdColumnIndex();
         }
@@ -43,6 +45,7 @@ public class MergeCursorWithUniqueId extends MergeCursor {
 
     @Override
     public int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException {
+        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if ("_id".equals(columnName)) {
             return getUniqueIdColumnIndex();
         }
@@ -74,6 +77,7 @@ public class MergeCursorWithUniqueId extends MergeCursor {
     }
 
     protected long getPerCursorId() {
+        Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (mIdColumnIndex == -1) {
             mIdColumnIndex = super.getColumnIndexOrThrow("_id");
         }

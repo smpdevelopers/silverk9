@@ -192,6 +192,13 @@ public class AttachmentView extends FrameLayout implements OnClickListener, OnLo
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.view) {
+                onViewButtonClicked();
+        }
+        else if (view.getId() == R.id.download) {
+                onSaveButtonClicked();
+        }
+        /* DIMA: Change for using in library
         switch (view.getId()) {
             case R.id.view: {
                 onViewButtonClicked();
@@ -201,7 +208,7 @@ public class AttachmentView extends FrameLayout implements OnClickListener, OnLo
                 onSaveButtonClicked();
                 break;
             }
-        }
+        }*/
     }
 
     @Override

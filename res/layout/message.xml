@@ -25,14 +25,17 @@
 	            android:id="@+id/message_content"
 	            android:layout_height="wrap_content"
 	            android:layout_width="fill_parent"/>
-	
+
+            <!--
 	        <com.fsck.k9.view.AccessibleWebView
 	            android:id="@+id/accessible_message_content"
 	            android:layout_height="wrap_content"
 	            android:layout_width="fill_parent"/>
-	
+	        -->
+
 	        <!-- Attachments area -->
-	
+
+            <!--
 	        <LinearLayout
 	            android:id="@+id/attachments_container"
 	            android:orientation="vertical"
@@ -60,15 +63,18 @@
 	                android:padding="4dip"/>
 	
 	        </LinearLayout>
+	        -->
 	        
 	    </LinearLayout>
 	
     </com.fsck.k9.view.NonLockingScrollView>
 
+    <!--
     <Button android:id="@+id/download_remainder"
         android:text="@string/message_view_download_remainder"
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:layout_width="fill_parent"/>
+    -->
 
 </com.fsck.k9.view.SingleMessageView>

@@ -154,10 +154,13 @@ public class AccountSetupOptions extends K9Activity implements OnClickListener {
     }
 
     public void onClick(View v) {
+        if (v.getId() == R.id.next)
+            onDone();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.next:
             onDone();
             break;
-        }
+        }*/
     }
 }

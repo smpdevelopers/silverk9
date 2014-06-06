@@ -1,12 +1,6 @@
 
 package com.fsck.k9.activity;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -28,20 +22,19 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -50,10 +43,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.fsck.k9.Account;
 import com.fsck.k9.AccountStats;
 import com.fsck.k9.BaseAccount;
@@ -63,7 +56,6 @@ import com.fsck.k9.Preferences;
 import com.fsck.k9.R;
 import com.fsck.k9.activity.misc.ExtendedAsyncTask;
 import com.fsck.k9.activity.misc.NonConfigurationInstance;
-import com.fsck.k9.activity.setup.AccountSettings;
 import com.fsck.k9.activity.setup.AccountSetupBasics;
 import com.fsck.k9.activity.setup.Prefs;
 import com.fsck.k9.activity.setup.WelcomeMessage;
@@ -75,11 +67,6 @@ import com.fsck.k9.mail.Transport;
 import com.fsck.k9.mail.internet.MimeUtility;
 import com.fsck.k9.mail.store.StorageManager;
 import com.fsck.k9.mail.store.WebDavStore;
-import com.fsck.k9.search.LocalSearch;
-import com.fsck.k9.search.SearchAccount;
-import com.fsck.k9.search.SearchSpecification.Attribute;
-import com.fsck.k9.search.SearchSpecification.Searchfield;
-import com.fsck.k9.view.ColorChip;
 import com.fsck.k9.preferences.SettingsExporter;
 import com.fsck.k9.preferences.SettingsImportExportException;
 import com.fsck.k9.preferences.SettingsImporter;
@@ -87,6 +74,24 @@ import com.fsck.k9.preferences.SettingsImporter.AccountDescription;
 import com.fsck.k9.preferences.SettingsImporter.AccountDescriptionPair;
 import com.fsck.k9.preferences.SettingsImporter.ImportContents;
 import com.fsck.k9.preferences.SettingsImporter.ImportResults;
+import com.fsck.k9.search.LocalSearch;
+import com.fsck.k9.search.SearchAccount;
+import com.fsck.k9.search.SearchSpecification.Attribute;
+import com.fsck.k9.search.SearchSpecification.Searchfield;
+import com.fsck.k9.view.ColorChip;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.cketti.library.changelog.ChangeLog;
 
@@ -652,10 +657,10 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
      */
     private boolean onOpenAccount(BaseAccount account) {
         if (account instanceof SearchAccount) {
-            SearchAccount searchAccount = (SearchAccount)account;
-            MessageList.actionDisplaySearch(this, searchAccount.getRelatedSearch(), false, false);
+            SearchAccount searchAccount = (SearchAccount) account;
+            //  MessageList.actionDisplaySearch(this, searchAccount.getRelatedSearch(), false, false);
         } else {
-            Account realAccount = (Account)account;
+            Account realAccount = (Account) account;
             if (!realAccount.isEnabled()) {
                 onActivateAccount(realAccount);
                 return false;
@@ -673,9 +678,11 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
                 LocalSearch search = new LocalSearch(realAccount.getAutoExpandFolderName());
                 search.addAllowedFolder(realAccount.getAutoExpandFolderName());
                 search.addAccountUuid(realAccount.getUuid());
-                MessageList.actionDisplaySearch(this, search, false, true);}
+                //  MessageList.actionDisplaySearch(this, search, false, true);}
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 
     private void onActivateAccount(Account account) {
@@ -996,10 +1003,6 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
         showDialog(DIALOG_REMOVE_ACCOUNT);
     }
 
-    private void onEditAccount(Account account) {
-        AccountSettings.actionSettings(this, account);
-    }
-
     @Override
     public Dialog onCreateDialog(int id) {
         // Android recreates our dialogs on configuration changes even when they have been
@@ -1141,6 +1144,25 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
         if (mSelectedContextAccount instanceof Account) {
             realAccount = (Account)mSelectedContextAccount;
         }
+        if(item.getItemId() == R.id.delete_account)
+                onDeleteAccount(realAccount);
+        else if(item.getItemId() == R.id.activate)
+                onActivateAccount(realAccount);
+        else if(item.getItemId() ==  R.id.clear_pending)
+                onClearCommands(realAccount);
+        else if(item.getItemId() == R.id.empty_trash)
+                onEmptyTrash(realAccount);
+        else if(item.getItemId() == R.id.clear)
+                onClear(realAccount);
+        else if(item.getItemId() == R.id.recreate)
+                onRecreate(realAccount);
+        else if(item.getItemId() == R.id.export)
+                onExport(false, realAccount);
+        else if(item.getItemId() == R.id.move_up)
+                onMove(realAccount, true);
+        else if(item.getItemId() == R.id.move_down)
+                onMove(realAccount, false);
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case R.id.delete_account:
             onDeleteAccount(realAccount);
@@ -1173,6 +1195,7 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
             onMove(realAccount, false);
             break;
         }
+        */
         return true;
     }
 
@@ -1198,6 +1221,25 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.add_new_account)
+                onAddNewAccount();
+        else if(item.getItemId() == R.id.edit_prefs)
+                onEditPrefs();
+        else if(item.getItemId() == R.id.check_mail)
+                onCheckMail(null);
+        else if(item.getItemId() == R.id.compose)
+                onCompose();
+        else if(item.getItemId() == R.id.about)
+                onAbout();
+        else if(item.getItemId() == R.id.search)
+                onSearchRequested();
+        else if(item.getItemId() == R.id.export_all)
+                onExport(true, null);
+        else if(item.getItemId() == R.id.import_settings)
+                onImport();
+        else
+                return super.onOptionsItemSelected(item);
+        /* DIMA: Change for using in library
         switch (item.getItemId()) {
         case R.id.add_new_account:
             onAddNewAccount();
@@ -1225,11 +1267,11 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
             break;
         default:
             return super.onOptionsItemSelected(item);
+        }*/
+            return true;
         }
-        return true;
-    }
 
-    private static String[][] USED_LIBRARIES = new String[][] {
+        private static String[][] USED_LIBRARIES = new String[][] {
         new String[] {"jutf7", "http://jutf7.sourceforge.net/"},
         new String[] {"JZlib", "http://www.jcraft.com/jzlib/"},
         new String[] {"Commons IO", "http://commons.apache.org/io/"},
@@ -1854,7 +1896,7 @@ public class Accounts extends K9ListActivity implements OnItemClickListener {
 
         @Override
         public void onClick(View v) {
-            MessageList.actionDisplaySearch(Accounts.this, search, true, false);
+           // MessageList.actionDisplaySearch(Accounts.this, search, true, false);
         }
 
     }

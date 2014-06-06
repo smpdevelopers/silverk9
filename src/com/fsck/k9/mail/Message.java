@@ -243,9 +243,9 @@ public abstract class Message implements Part, CompositeBody {
     public MessageReference makeMessageReference() {
         if (mReference == null) {
             mReference = new MessageReference();
-            mReference.accountUuid = getFolder().getAccount().getUuid();
+           /* mReference.accountUuid = getFolder().getAccount().getUuid();
             mReference.folderName = getFolder().getName();
-            mReference.uid = mUid;
+            mReference.uid = mUid;*/
         }
         return mReference;
     }

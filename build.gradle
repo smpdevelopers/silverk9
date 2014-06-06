@@ -1,4 +1,4 @@
-buildscript {
+/*buildscript {
   repositories {
     mavenCentral()
   }
@@ -6,16 +6,16 @@ buildscript {
   dependencies {
     classpath 'com.android.tools.build:gradle:0.9.+'
   }
-}
-
-apply plugin: 'android'
+}*/
+apply plugin: 'android-library'
 
 dependencies {
-  compile project(':plugins:ActionBarSherlock:library')
-  compile project(':plugins:Android-PullToRefresh:library')
-  compile project(':plugins:ckChangeLog:library')
-  compile project(':plugins:HoloColorPicker')
-  compile project(':plugins:openpgp-api-library')
+
+  compile project(':app:plugins:k-9:plugins:ActionBarSherlock:library')
+  compile project(':app:plugins:k-9:plugins:Android-PullToRefresh:library')
+  compile project(':app:plugins:k-9:plugins:ckChangeLog:library')
+  compile project(':app:plugins:k-9:plugins:HoloColorPicker')
+  compile project(':app:plugins:k-9:plugins:openpgp-api-library')
   compile fileTree(dir: 'libs', include: '*.jar')
 }
 
@@ -55,3 +55,5 @@ task testsOnJVM(type :GradleBuild, dependsOn: assemble) {
   buildFile = 'tests-on-jvm/build.gradle'
   tasks = ['test']
 }
+
+archivesBaseName = 'K-9'

@@ -631,6 +631,7 @@ public class MessageProvider extends ContentProvider {
 
         @Override
         public int getColumnIndexOrThrow(String columnName) throws IllegalArgumentException {
+            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             checkClosed();
             return mCursor.getColumnIndexOrThrow(columnName);
         }

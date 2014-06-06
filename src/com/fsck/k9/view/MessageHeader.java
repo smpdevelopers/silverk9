@@ -1,6 +1,7 @@
 package com.fsck.k9.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,24 +10,22 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
-
 import android.widget.LinearLayout;
 import android.widget.QuickContactBadge;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.fsck.k9.Account;
 import com.fsck.k9.FontSizes;
 import com.fsck.k9.K9;
 import com.fsck.k9.R;
 import com.fsck.k9.activity.misc.ContactPictureLoader;
 import com.fsck.k9.helper.ContactPicture;
 import com.fsck.k9.helper.Contacts;
-import com.fsck.k9.Account;
 import com.fsck.k9.helper.MessageHelper;
 import com.fsck.k9.helper.StringUtils;
 import com.fsck.k9.mail.Address;
@@ -35,6 +34,7 @@ import com.fsck.k9.mail.Message;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.internet.MimeUtility;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,6 +129,15 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.from) {
+                onAddSenderToContacts();
+        }
+        else if (view.getId() == R.id.to ||
+                 view.getId() == R.id.cc) {
+                expand((TextView)view, ((TextView)view).getEllipsize() != null);
+                layoutChanged();
+        }
+        /* DIMA: Change for using in library
         switch (view.getId()) {
             case R.id.from: {
                 onAddSenderToContacts();
@@ -139,7 +148,7 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
                 expand((TextView)view, ((TextView)view).getEllipsize() != null);
                 layoutChanged();
             }
-        }
+        } */
     }
 
     private void onAddSenderToContacts() {
@@ -208,12 +217,64 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
             messageToShow = R.string.message_additional_headers_retrieval_failed;
         }
         // Show a message to the user, if any
-        if (messageToShow != null) {
+        /*if (messageToShow != null) {
             Toast toast = Toast.makeText(mContext, messageToShow, Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL, 0, 0);
             toast.show();
-        }
+        }*/
 
+    }
+
+    public void populateDefault() {
+        final CharSequence from = "from_default";
+        final CharSequence to = "to_default";
+        final CharSequence cc = "cc_default";
+
+        mContactBadge.setVisibility(View.VISIBLE);
+
+        //mContactsPictureLoader = ContactPicture.getContactPictureLoader(mContext);
+
+        mSubjectView.setText(mContext.getText(R.string.general_no_subject));
+        mSubjectView.setTextColor(0xff000000 | defaultSubjectColor);
+
+        String dateTime = DateUtils.formatDateTime(mContext,
+                new Date().getTime()
+                /*message.getSentDate().getTime()*/,
+                DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_ABBREV_ALL
+                        | DateUtils.FORMAT_SHOW_TIME
+                        | DateUtils.FORMAT_SHOW_YEAR);
+        mDateView.setText(dateTime);
+
+        /*if (K9.showContactPicture()) {
+            if (counterpartyAddress != null) {
+                mContactBadge.assignContactFromEmail(counterpartyAddress.getAddress(), true);
+                mContactsPictureLoader.loadContactPicture(counterpartyAddress, mContactBadge);
+            } else {*/
+                mContactBadge.setImageResource(R.drawable.ic_contact_picture);
+        /*    }
+        }*/
+
+        mFromView.setText(from);
+
+        updateAddressField(mToView, to, mToLabel);
+        updateAddressField(mCcView, cc, mCcLabel);
+        mAnsweredIcon.setVisibility(/*message.isSet(Flag.ANSWERED) ? */View.VISIBLE/* : View.GONE*/);
+        mForwardedIcon.setVisibility(/*message.isSet(Flag.FORWARDED) ?*/ View.VISIBLE/* : View.GONE*/);
+        mFlagged.setChecked(true/*message.isSet(Flag.FLAGGED)*/);
+
+        mChip.setBackgroundColor(Color.WHITE/*mAccount.getChipColor()*/);
+
+        setVisibility(View.VISIBLE);
+
+       /* if (mSavedState != null) {
+            if (mSavedState.additionalHeadersVisible) {*/
+                showAdditionalHeaders();
+        /*    }
+            mSavedState = null;
+        } else {
+            hideAdditionalHeaders();
+        }*/
     }
 
     public void populate(final Message message, final Account account) throws MessagingException {
@@ -353,6 +414,10 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
                 additionalHeaders.add(new HeaderEntry(headerName, headerValue));
             }
         }
+        /*
+            DIMA TODO: remove that adding
+         */
+        additionalHeaders.add(new HeaderEntry("Label_default", "Value_default"));
         return additionalHeaders;
     }
 

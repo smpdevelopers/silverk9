@@ -100,6 +100,13 @@ public class AccountSetupAccountType extends K9Activity implements OnClickListen
     }
 
     public void onClick(View v) {
+        if (v.getId() == R.id.pop)
+            onPop();
+        if (v.getId() == R.id.imap)
+            onImap();
+        if (v.getId() == R.id.webdav)
+            onWebDav();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.pop:
             onPop();
@@ -110,7 +117,7 @@ public class AccountSetupAccountType extends K9Activity implements OnClickListen
         case R.id.webdav:
             onWebDav();
             break;
-        }
+        }*/
     }
     private void failure(Exception use) {
         Log.e(K9.LOG_TAG, "Failure", use);

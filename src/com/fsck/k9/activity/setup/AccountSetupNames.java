@@ -91,10 +91,13 @@ public class AccountSetupNames extends K9Activity implements OnClickListener {
     }
 
     public void onClick(View v) {
+        if (v.getId() == R.id.done)
+            onNext();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.done:
             onNext();
             break;
-        }
+        }*/
     }
 }

@@ -1,6 +1,9 @@
 package com.fsck.k9.service;
 
-import java.util.ArrayList;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
 import com.fsck.k9.Account;
 import com.fsck.k9.K9;
@@ -8,13 +11,9 @@ import com.fsck.k9.Preferences;
 import com.fsck.k9.activity.MessageCompose;
 import com.fsck.k9.activity.MessageReference;
 import com.fsck.k9.controller.MessagingController;
-import com.fsck.k9.mail.Flag;
 import com.fsck.k9.mail.Message;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import java.util.ArrayList;
 
 public class NotificationActionService extends CoreService {
     private final static String REPLY_ACTION = "com.fsck.k9.service.NotificationActionService.REPLY_ACTION";
@@ -79,9 +78,9 @@ public class NotificationActionService extends CoreService {
 
                 ArrayList<MessageReference> refs =
                         intent.getParcelableArrayListExtra(EXTRA_MESSAGE_LIST);
-                for (MessageReference ref : refs) {
+              /*  for (MessageReference ref : refs) {
                     controller.setFlag(account, ref.folderName, ref.uid, Flag.SEEN, true);
-                }
+                }*/
             } else if (DELETE_ALL_ACTION.equals(action)) {
                 if (K9.DEBUG)
                     Log.i(K9.LOG_TAG, "NotificationActionService deleting messages");

@@ -453,11 +453,14 @@ public class AccountSetupIncoming extends K9Activity implements OnClickListener 
 
     public void onClick(View v) {
         try {
+            if (v.getId() == R.id.next)
+                onNext();
+            /* DIMA: Change for using in library
             switch (v.getId()) {
             case R.id.next:
                 onNext();
                 break;
-            }
+            }*/
         } catch (Exception e) {
             failure(e);
         }

@@ -39,6 +39,15 @@ public class WelcomeMessage extends K9Activity implements OnClickListener{
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.next) {
+            AccountSetupBasics.actionNewAccount(this);
+            finish();
+        }
+        else if (view.getId() == R.id.import_settings) {
+            Accounts.importSettings(this);
+            finish();
+        }
+        /* DIMA: Change for using in library
         switch (view.getId()) {
             case R.id.next: {
                 AccountSetupBasics.actionNewAccount(this);
@@ -50,6 +59,6 @@ public class WelcomeMessage extends K9Activity implements OnClickListener{
                 finish();
                 break;
             }
-        }
+        }*/
     }
 }

@@ -14,6 +14,7 @@
             android:layout_marginRight="4dp"
             />
 
+
     <LinearLayout
             android:id="@+id/selected_checkbox_wrapper"
             android:layout_width="wrap_content"
@@ -24,6 +25,7 @@
             android:visibility="visible"
             android:textColor="?android:attr/textColorPrimary"
             android:baselineAligned="false">
+
 
         <CheckBox
                 android:id="@+id/selected_checkbox"
@@ -39,6 +41,7 @@
 
     </LinearLayout>
 
+
     <QuickContactBadge
             android:id="@+id/contact_badge"
             android:layout_marginRight="8dip"
@@ -52,7 +55,6 @@
             style="?android:attr/quickContactBadgeStyleWindowLarge"
             android:background="@android:color/transparent"/>
 
-
     <RelativeLayout
             android:id="@+id/list_item_inner"
             android:layout_width="match_parent"
@@ -65,6 +67,7 @@
             android:paddingBottom="6dp">
 
         <TextView
+                android:text="preview"
                 android:id="@+id/preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -94,6 +97,7 @@
                 android:layout_toLeftOf="@+id/date">
 
             <TextView
+                    android:text="sender_compact"
                     android:id="@+id/sender_compact"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -107,6 +111,7 @@
                     />
 
             <TextView
+                    android:text="subject"
                     android:id="@+id/subject"
                     android:layout_width="0dp"
                     android:layout_weight="0.7"
@@ -117,20 +122,6 @@
                     android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="?android:attr/textColorPrimary"
-                    />
-
-            <TextView
-                    android:id="@+id/thread_count"
-                    android:textColor="?attr/messageListThreadCountForegroundColor"
-                    android:background="?attr/messageListThreadCountBackground"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dip"
-                    android:layout_marginRight="4dip"
-                    android:paddingRight="4dip"
-                    android:paddingBottom="1dip"
-                    android:paddingLeft="4dip"
-                    android:focusable="false"
                     />
         </LinearLayout>
 
@@ -149,6 +140,7 @@
                 />
 
         <TextView
+                android:text="date"
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,7 +166,8 @@
                 android:paddingRight="4dip"
                 android:focusable="false"
                 android:visibility="visible"
-                android:gravity="center_vertical"/>
+                android:gravity="center_vertical"
+            android:checked="false" />
 
 
     </RelativeLayout>

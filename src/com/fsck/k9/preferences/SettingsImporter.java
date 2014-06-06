@@ -249,6 +249,7 @@ public class SettingsImporter {
                                     }
 
                                     // Reload accounts
+                                    Log.e("ERROR", "importSettings 1");
                                     preferences.loadAccounts();
 
                                     importedAccounts.add(importResult);
@@ -292,6 +293,7 @@ public class SettingsImporter {
                 }
             }
 
+            Log.e("ERROR", "importSettings 2");
             preferences.loadAccounts();
             K9.loadPrefs(preferences);
             K9.setServicesEnabled(context);

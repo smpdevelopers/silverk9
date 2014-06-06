@@ -21,6 +21,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.fsck.k9.K9;
@@ -461,6 +462,7 @@ public class Prefs extends K9PreferenceActivity {
     }
 
     private void saveSettings() {
+        Log.e("ERROR", "saveSettings");
         SharedPreferences preferences = Preferences.getPreferences(this).getPreferences();
 
         K9.setK9Language(mLanguage.getValue());

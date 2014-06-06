@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.fsck.k9.fragment.MessageListFragment;
 import com.fsck.k9.mail.Message;
@@ -169,11 +170,16 @@ public class EmailProviderCache {
      * {@code MessageListFragment} can update the view without reloading the cursor.
      * </p>
      */
+    public void NotifyChange() {
+        Log.e("EmailProviderCache", "NofityChanges - public");
+        notifyChange();
+    }
     private void notifyChange() {
         LocalBroadcastManager.getInstance(sContext).sendBroadcast(new Intent(ACTION_CACHE_UPDATED));
 
         Uri uri = Uri.withAppendedPath(EmailProvider.CONTENT_URI, "account/" + mAccountUuid +
                 "/messages");
+        Log.e("EmailProviderCache", "notifyChange: uri " + uri.toString());
         sContext.getContentResolver().notifyChange(uri, null);
     }
 }

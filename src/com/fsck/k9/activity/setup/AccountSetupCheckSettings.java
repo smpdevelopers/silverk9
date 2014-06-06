@@ -398,10 +398,13 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
     }
 
     public void onClick(View v) {
+        if(v.getId() == R.id.cancel)
+            onCancel();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.cancel:
             onCancel();
             break;
-        }
+        }*/
     }
 }

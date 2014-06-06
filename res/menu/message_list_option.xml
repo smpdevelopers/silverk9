@@ -92,58 +92,18 @@
                 android:id="@+id/reply"
                 android:title="@string/reply_action"/>
             <item
-                android:id="@+id/reply_all"
-                android:title="@string/reply_all_action"/>
-            <item
                 android:id="@+id/forward"
                 android:title="@string/forward_action"/>
-            <item
-                android:id="@+id/share"
-                android:title="@string/send_alternate_action"/>
         </menu>
     </item>
 
-    <!-- MessageView -->
-    <item
-        android:id="@+id/refile"
-        android:icon="?attr/iconActionSingleMessageOptions"
-        android:showAsAction="never"
-        android:title="@string/refile_action">
-        <menu>
-            <item
-                android:id="@+id/refile_archive"
-                android:title="@string/archive_action"/>
-
-            <!-- MessageView -->
-            <item
-                android:id="@+id/refile_spam"
-                android:title="@string/spam_action"/>
-
-            <!-- MessageView -->
-            <item
-                android:id="@+id/refile_move"
-                android:title="@string/move_action"/>
-
-            <!-- MessageView -->
-            <item
-                android:id="@+id/refile_copy"
-                android:title="@string/copy_action"/>
-        </menu>
-    </item>
     <!-- MessageView -->
     <item
         android:id="@+id/toggle_unread"
         android:alphabeticShortcut="u"
+        android:icon="?attr/iconActionMarkAsUnread"
         android:showAsAction="never"
         android:title="@string/mark_as_unread_action"/>
-
-    <item android:id="@+id/show_headers"
-          android:showAsAction="never"
-          android:title="@string/show_headers_action"/>
-
-    <item android:id="@+id/hide_headers"
-          android:showAsAction="never"
-          android:title="@string/hide_headers_action"/>
 
     <!-- MessageList -->
     <item
@@ -195,6 +155,7 @@
     <item
         android:id="@+id/mark_all_as_read"
         android:showAsAction="never"
+        android:icon="?attr/iconActionMarkAsRead"
         android:title="@string/mark_all_as_read"/>
 
     <!-- MessageList -->
@@ -236,12 +197,6 @@
             <item
                 android:id="@+id/folder_settings"
                 android:title="@string/folder_settings_action"/>
-            <item
-                android:id="@+id/account_settings"
-                android:title="@string/account_settings_action"/>
-            <item
-                android:id="@+id/app_settings"
-                android:title="@string/global_settings_action"/>
         </menu>
     </item>
 

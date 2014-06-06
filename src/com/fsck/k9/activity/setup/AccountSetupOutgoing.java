@@ -294,11 +294,15 @@ public class AccountSetupOutgoing extends K9Activity implements OnClickListener,
     }
 
     public void onClick(View v) {
+        if (v.getId() == R.id.next)
+            onNext();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.next:
             onNext();
             break;
         }
+        */
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

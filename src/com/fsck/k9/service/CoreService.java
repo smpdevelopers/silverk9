@@ -291,6 +291,14 @@ public abstract class CoreService extends Service {
     public void execute(Context context, final Runnable runner, int wakeLockTime,
             final Integer startId) {
 
+        if (true){
+            Log.e("CoreService", "execute - should be disabled");
+            return;
+        }
+
+
+
+
         boolean serviceShutdownScheduled = false;
         final boolean autoShutdown = mAutoShutdown;
 

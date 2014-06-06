@@ -341,6 +341,11 @@ public class AccountSetupBasics extends K9Activity
     }
 
     public void onClick(View v) {
+        if (v.getId() == R.id.next)
+            onNext();
+        else if (v.getId() == R.id.manual_setup)
+            onManualSetup();
+        /* DIMA: Change for using in library
         switch (v.getId()) {
         case R.id.next:
             onNext();
@@ -348,7 +353,7 @@ public class AccountSetupBasics extends K9Activity
         case R.id.manual_setup:
             onManualSetup();
             break;
-        }
+        }*/
     }
 
     /**

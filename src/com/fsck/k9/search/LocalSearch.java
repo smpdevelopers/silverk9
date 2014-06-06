@@ -7,6 +7,7 @@ import java.util.Set;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * This class represents a local search.
@@ -253,12 +254,17 @@ public class LocalSearch implements SearchSpecification {
      */
     public List<String> getFolderNames() {
         ArrayList<String> results = new ArrayList<String>();
+
+        /* DIMA TODO: commented for using single folder
         for (ConditionsTreeNode node : mLeafSet) {
+
             if (node.mCondition.field == Searchfield.FOLDER &&
                     node.mCondition.attribute == Attribute.EQUALS) {
                 results.add(node.mCondition.value);
             }
-        }
+        }*/
+        Log.e("LocalSearch", "getFolderNames: hardcoded to single folder 'allMessages");
+        results.add("allMessages");
         return results;
     }
 
@@ -328,13 +334,18 @@ public class LocalSearch implements SearchSpecification {
      */
     @Override
     public String[] getAccountUuids() {
+        Log.e("LocalSearch", "getAccountUuids: hardcoded to account '1'");
+        /* DIMA TODO: hardcode for account 1
         if (mAccountUuids.size() == 0) {
             return new String[] { SearchSpecification.ALL_ACCOUNTS };
         }
 
         String[] tmp = new String[mAccountUuids.size()];
         mAccountUuids.toArray(tmp);
-        return tmp;
+        return tmp; */
+        String[] accounts = new String[1];
+        accounts[0] = String.valueOf(1);
+        return accounts;
     }
 
     /**

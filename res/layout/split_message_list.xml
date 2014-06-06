@@ -17,7 +17,7 @@
         android:id="@+id/message_list_divider"
         android:layout_width="1px"
         android:layout_height="fill_parent"
-        android:background="?attr/messageListDividerColor"
+        android:background="#000000"
         tools:ignore="PxUsage" />
 
     <FrameLayout

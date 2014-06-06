@@ -1,19 +1,6 @@
 
 package com.fsck.k9;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -23,14 +10,15 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.util.Log;
 
+import com.fsck.k9.activity.MessageList.SortType;
 import com.fsck.k9.activity.setup.AccountSetupCheckSettings.CheckDirection;
 import com.fsck.k9.crypto.Apg;
 import com.fsck.k9.crypto.CryptoProvider;
 import com.fsck.k9.helper.Utility;
 import com.fsck.k9.mail.Address;
+import com.fsck.k9.mail.Folder.FolderClass;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.Store;
-import com.fsck.k9.mail.Folder.FolderClass;
 import com.fsck.k9.mail.store.LocalStore;
 import com.fsck.k9.mail.store.StorageManager;
 import com.fsck.k9.mail.store.StorageManager.StorageProvider;
@@ -38,13 +26,26 @@ import com.fsck.k9.provider.EmailProvider;
 import com.fsck.k9.provider.EmailProvider.StatsColumns;
 import com.fsck.k9.search.ConditionsTreeNode;
 import com.fsck.k9.search.LocalSearch;
-import com.fsck.k9.search.SqlQueryBuilder;
 import com.fsck.k9.search.SearchSpecification.Attribute;
 import com.fsck.k9.search.SearchSpecification.SearchCondition;
 import com.fsck.k9.search.SearchSpecification.Searchfield;
+import com.fsck.k9.search.SqlQueryBuilder;
 import com.fsck.k9.security.LocalKeyStore;
 import com.fsck.k9.view.ColorChip;
 import com.larswerkman.colorpicker.ColorPicker;
+
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Account stores all of the settings for a single account defined by the user. It is able to save
@@ -105,33 +106,7 @@ public class Account implements BaseAccount {
             Color.parseColor("#9933CC")     // purple
     };
 
-    public enum SortType {
-        SORT_DATE(R.string.sort_earliest_first, R.string.sort_latest_first, false),
-        SORT_ARRIVAL(R.string.sort_earliest_first, R.string.sort_latest_first, false),
-        SORT_SUBJECT(R.string.sort_subject_alpha, R.string.sort_subject_re_alpha, true),
-        SORT_SENDER(R.string.sort_sender_alpha, R.string.sort_sender_re_alpha, true),
-        SORT_UNREAD(R.string.sort_unread_first, R.string.sort_unread_last, true),
-        SORT_FLAGGED(R.string.sort_flagged_first, R.string.sort_flagged_last, true),
-        SORT_ATTACHMENT(R.string.sort_attach_first, R.string.sort_unattached_first, true);
 
-        private int ascendingToast;
-        private int descendingToast;
-        private boolean defaultAscending;
-
-        SortType(int ascending, int descending, boolean ndefaultAscending) {
-            ascendingToast = ascending;
-            descendingToast = descending;
-            defaultAscending = ndefaultAscending;
-        }
-
-        public int getToast(boolean ascending) {
-            return (ascending) ? ascendingToast : descendingToast;
-        }
-
-        public boolean isDefaultAscending() {
-            return defaultAscending;
-        }
-    }
 
     public static final SortType DEFAULT_SORT_TYPE = SortType.SORT_DATE;
     public static final boolean DEFAULT_SORT_ASCENDING = false;
