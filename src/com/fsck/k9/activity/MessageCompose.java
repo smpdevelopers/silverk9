@@ -206,16 +206,16 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     /**
      * The account used for message composition.
      */
-    private Account mAccount;
+    //private Account mAccount;
 
 
-    private Contacts mContacts;
+    //private Contacts mContacts;
 
     /**
      * This identity's settings are used for message composition.
-     * Note: This has to be an identity of the account {@link #mAccount}.
+     * Note: This has to be an identity of the account
      */
-    private Identity mIdentity;
+    //private Identity mIdentity;
 
     private boolean mIdentityChanged = false;
     private boolean mSignatureChanged = false;
@@ -271,7 +271,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         HIDE
     }
 
-    private boolean mReadReceipt = false;
+    //private boolean mReadReceipt = false;
 
     private QuotedTextMode mQuotedTextMode = QuotedTextMode.NONE;
 
@@ -287,21 +287,21 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private boolean mForcePlainText = false;
 
     private Button mChooseIdentityButton;
-    private LinearLayout mCcWrapper;
-    private LinearLayout mBccWrapper;
+    //private LinearLayout mCcWrapper;
+    //private LinearLayout mBccWrapper;
     private MultiAutoCompleteTextView mToView;
-    private MultiAutoCompleteTextView mCcView;
-    private MultiAutoCompleteTextView mBccView;
+    //private MultiAutoCompleteTextView mCcView;
+    //private MultiAutoCompleteTextView mBccView;
     private EditText mSubjectView;
-    private EolConvertingEditText mSignatureView;
+    //private EolConvertingEditText mSignatureView;
     private EolConvertingEditText mMessageContentView;
-    private LinearLayout mAttachments;
-    private Button mQuotedTextShow;
-    private View mQuotedTextBar;
-    private ImageButton mQuotedTextEdit;
-    private ImageButton mQuotedTextDelete;
-    private EolConvertingEditText mQuotedText;
-    private MessageWebView mQuotedHTML;
+    //private LinearLayout mAttachments;
+    //private Button mQuotedTextShow;
+    //private View mQuotedTextBar;
+    //private ImageButton mQuotedTextEdit;
+    //private ImageButton mQuotedTextDelete;
+    //private EolConvertingEditText mQuotedText;
+    //private MessageWebView mQuotedHTML;
     private InsertableHtmlContent mQuotedHtmlContent;   // Container for HTML reply as it's being built.
     private View mEncryptLayout;
     private CheckBox mCryptoSignatureCheckbox;
@@ -310,8 +310,8 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private TextView mCryptoSignatureUserIdRest;
 
     private ImageButton mAddToFromContacts;
-    private ImageButton mAddCcFromContacts;
-    private ImageButton mAddBccFromContacts;
+    //private ImageButton mAddCcFromContacts;
+    //private ImageButton mAddBccFromContacts;
 
     private PgpData mPgpData = null;
     private boolean mAutoEncrypt = false;
@@ -341,7 +341,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
      */
     private SimpleMessageFormat mMessageFormat;
 
-    private QuoteStyle mQuoteStyle;
+    //private QuoteStyle mQuoteStyle;
 
     private boolean mDraftNeedsSaving = false;
     private boolean mPreventDraftSaving = false;
@@ -414,7 +414,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     };
 
     private Listener mListener = new Listener();
-    private EmailAddressAdapter mAddressAdapter;
+    //private EmailAddressAdapter mAddressAdapter;
     private Validator mAddressValidator;
 
     private FontSizes mFontSizes = K9.getFontSizes();
@@ -539,7 +539,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         */
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-        if (K9.getK9ComposerThemeSetting() != K9.Theme.USE_GLOBAL) {
+        /*if (K9.getK9ComposerThemeSetting() != K9.Theme.USE_GLOBAL) {
             // theme the whole content according to the theme (except the action bar)
             mThemeContext = new ContextThemeWrapper(this,
                     K9.getK9ThemeResourceId(K9.getK9ComposerTheme()));
@@ -550,10 +550,10 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             mThemeContext.getTheme().resolveAttribute(R.attr.messageViewHeaderBackgroundColor, outValue, true);
             v.setBackgroundColor(outValue.data);
             setContentView(v);
-        } else {
+        } else {*/
             setContentView(R.layout.message_compose);
             mThemeContext = this;
-        }
+        //}
 
         final Intent intent = getIntent();
 
@@ -586,41 +586,50 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             return;
         }*/
 
-        mContacts = Contacts.getInstance(MessageCompose.this);
+        //mContacts = Contacts.getInstance(MessageCompose.this);
 
-        mAddressAdapter = new EmailAddressAdapter(mThemeContext);
+        //mAddressAdapter = new EmailAddressAdapter(mThemeContext);
         mAddressValidator = new EmailAddressValidator();
 
+        //May be shold be replaced to 'send' button
         mChooseIdentityButton = (Button) findViewById(R.id.identity);
         mChooseIdentityButton.setOnClickListener(this);
 
-        if (mAccount.getIdentities().size() == 1 &&
-                Preferences.getPreferences(this).getAvailableAccounts().size() == 1) {
-            mChooseIdentityButton.setVisibility(View.GONE);
-        }
+        /*
+    if (mAccount.getIdentities().size() == 1 &&
+            Preferences.getPreferences(this).getAvailableAccounts().size() == 1) {
+        mChooseIdentityButton.setVisibility(View.GONE);
+    }
+        */
 
         mToView = (MultiAutoCompleteTextView) findViewById(R.id.to);
-        mCcView = (MultiAutoCompleteTextView) findViewById(R.id.cc);
-        mBccView = (MultiAutoCompleteTextView) findViewById(R.id.bcc);
+        /*
+    mCcView = (MultiAutoCompleteTextView) findViewById(R.id.cc);
+    mBccView = (MultiAutoCompleteTextView) findViewById(R.id.bcc);
+        */
         mSubjectView = (EditText) findViewById(R.id.subject);
         mSubjectView.getInputExtras(true).putBoolean("allowEmoji", true);
 
         mAddToFromContacts = (ImageButton) findViewById(R.id.add_to);
-        mAddCcFromContacts = (ImageButton) findViewById(R.id.add_cc);
-        mAddBccFromContacts = (ImageButton) findViewById(R.id.add_bcc);
-        mCcWrapper = (LinearLayout) findViewById(R.id.cc_wrapper);
-        mBccWrapper = (LinearLayout) findViewById(R.id.bcc_wrapper);
 
-        if (mAccount.isAlwaysShowCcBcc()) {
-            onAddCcBcc();
-        }
+        /*
+    mAddCcFromContacts = (ImageButton) findViewById(R.id.add_cc);
+    mAddBccFromContacts = (ImageButton) findViewById(R.id.add_bcc);
+    mCcWrapper = (LinearLayout) findViewById(R.id.cc_wrapper);
+    mBccWrapper = (LinearLayout) findViewById(R.id.bcc_wrapper);
 
-        EolConvertingEditText upperSignature = (EolConvertingEditText)findViewById(R.id.upper_signature);
-        EolConvertingEditText lowerSignature = (EolConvertingEditText)findViewById(R.id.lower_signature);
+    if (mAccount.isAlwaysShowCcBcc()) {
+        onAddCcBcc();
+    }
 
+    EolConvertingEditText upperSignature = (EolConvertingEditText)findViewById(R.id.upper_signature);
+    EolConvertingEditText lowerSignature = (EolConvertingEditText)findViewById(R.id.lower_signature);
+
+        */
         mMessageContentView = (EolConvertingEditText)findViewById(R.id.message_content);
         mMessageContentView.getInputExtras(true).putBoolean("allowEmoji", true);
 
+/*
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
         mQuotedTextShow = (Button)findViewById(R.id.quoted_text_show);
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
@@ -639,7 +648,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 return true;
             }
         });
-
+*/
         TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int before, int after) {
@@ -670,7 +679,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
             @Override
             public void afterTextChanged(android.text.Editable s) {
-                final CryptoProvider crypto = mAccount.getCryptoProvider();
+            /*    final CryptoProvider crypto = mAccount.getCryptoProvider();
                 if (mAutoEncrypt && crypto.isAvailable(getApplicationContext())) {
                     for (Address address : getRecipientAddresses()) {
                         if (crypto.hasPublicKeyForEmail(getApplicationContext(),
@@ -680,7 +689,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                             break;
                         }
                     }
-                }
+                }*/
             }
         };
 
@@ -701,58 +710,60 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         };
 
         mToView.addTextChangedListener(recipientWatcher);
-        mCcView.addTextChangedListener(recipientWatcher);
-        mBccView.addTextChangedListener(recipientWatcher);
+        //mCcView.addTextChangedListener(recipientWatcher);
+        //mBccView.addTextChangedListener(recipientWatcher);
         mSubjectView.addTextChangedListener(watcher);
 
         mMessageContentView.addTextChangedListener(watcher);
-        mQuotedText.addTextChangedListener(watcher);
+        //mQuotedText.addTextChangedListener(watcher);
 
         /* Yes, there really are poeple who ship versions of android without a contact picker */
-        if (mContacts.hasContactPicker()) {
-            mAddToFromContacts.setOnClickListener(new OnClickListener() {
-                @Override public void onClick(View v) {
-                    doLaunchContactPicker(CONTACT_PICKER_TO);
-                }
-            });
-            mAddCcFromContacts.setOnClickListener(new OnClickListener() {
-                @Override public void onClick(View v) {
-                    doLaunchContactPicker(CONTACT_PICKER_CC);
-                }
-            });
-            mAddBccFromContacts.setOnClickListener(new OnClickListener() {
-                @Override public void onClick(View v) {
-                    doLaunchContactPicker(CONTACT_PICKER_BCC);
-                }
-            });
-        } else {
-            mAddToFromContacts.setVisibility(View.GONE);
-            mAddCcFromContacts.setVisibility(View.GONE);
-            mAddBccFromContacts.setVisibility(View.GONE);
-        }
+        /*
+    if (mContacts.hasContactPicker()) {
+        mAddToFromContacts.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) {
+                doLaunchContactPicker(CONTACT_PICKER_TO);
+            }
+        });
+        mAddCcFromContacts.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) {
+                doLaunchContactPicker(CONTACT_PICKER_CC);
+            }
+        });
+        mAddBccFromContacts.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(View v) {
+                doLaunchContactPicker(CONTACT_PICKER_BCC);
+            }
+        });
+    } else {
+        mAddToFromContacts.setVisibility(View.GONE);
+        mAddCcFromContacts.setVisibility(View.GONE);
+        mAddBccFromContacts.setVisibility(View.GONE);
+    }
+        */
         /*
          * We set this to invisible by default. Other methods will turn it back on if it's
          * needed.
          */
+/*
+    showOrHideQuotedText(QuotedTextMode.NONE);
 
-        showOrHideQuotedText(QuotedTextMode.NONE);
-
-        mQuotedTextShow.setOnClickListener(this);
-        mQuotedTextEdit.setOnClickListener(this);
-        mQuotedTextDelete.setOnClickListener(this);
-
+    mQuotedTextShow.setOnClickListener(this);
+    mQuotedTextEdit.setOnClickListener(this);
+    mQuotedTextDelete.setOnClickListener(this);
+*/
         mToView.setAdapter(mAddressAdapter);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(mAddressValidator);
+/*
+    mCcView.setAdapter(mAddressAdapter);
+    mCcView.setTokenizer(new Rfc822Tokenizer());
+    mCcView.setValidator(mAddressValidator);
 
-        mCcView.setAdapter(mAddressAdapter);
-        mCcView.setTokenizer(new Rfc822Tokenizer());
-        mCcView.setValidator(mAddressValidator);
-
-        mBccView.setAdapter(mAddressAdapter);
-        mBccView.setTokenizer(new Rfc822Tokenizer());
-        mBccView.setValidator(mAddressValidator);
-
+    mBccView.setAdapter(mAddressAdapter);
+    mBccView.setTokenizer(new Rfc822Tokenizer());
+    mBccView.setValidator(mAddressValidator);
+*/
         if (savedInstanceState != null) {
             /*
              * This data gets used in onCreate, so grab it here instead of onRestoreInstanceState
@@ -782,7 +793,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 mAction = Action.COMPOSE;
             }
         }
-
+/*
         if (mIdentity == null) {
             mIdentity = mAccount.getIdentity(0);
         }
@@ -802,7 +813,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         mReadReceipt = mAccount.isMessageReadReceiptAlways();
         mQuoteStyle = mAccount.getQuoteStyle();
-
+*/
         updateFrom();
 
         if (!mSourceMessageProcessed) {
@@ -2438,7 +2449,7 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     }
 
     private void updateFrom() {
-        mChooseIdentityButton.setText(mIdentity.getEmail());
+        mChooseIdentityButton.setText("default_identity");//mIdentity.getEmail());
     }
 
     private void updateBcc() {

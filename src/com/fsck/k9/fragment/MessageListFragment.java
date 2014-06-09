@@ -44,7 +44,6 @@ import com.fsck.k9.FontSizes;
 import com.fsck.k9.K9;
 import com.fsck.k9.R;
 import com.fsck.k9.activity.ActivityListener;
-import com.fsck.k9.activity.ChooseFolder;
 import com.fsck.k9.activity.FolderInfoHolder;
 import com.fsck.k9.activity.MessageList.SortType;
 import com.fsck.k9.activity.MessageReference;
@@ -359,7 +358,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
     //DIMA TODO: add printing folder name where we are
     private String mTitle;
-    private FolderInfoHolder mCurrentFolder;
 
     private MessageListHandler mHandler = new MessageListHandler(this);
 
@@ -412,6 +410,11 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      */
     private long mContextMenuUniqueId = 0;
 
+    public enum Folders {
+        INBOX,
+        SENT
+    }
+    private Folders mCurrentFolder = Folders.INBOX;
 
     /**
      * This class is used to run operations that modify UI elements in the UI thread.
@@ -518,9 +521,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
             switch (msg.what) {
                 case ACTION_FOLDER_LOADING: {
-                    String folder = (String) msg.obj;
-                    boolean loading = (msg.arg1 == 1);
-                    fragment.folderLoading(folder, loading);
                     break;
                 }
                 case ACTION_REFRESH_TITLE: {
@@ -583,14 +583,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         return new ComparatorChain<Cursor>(chain);
     }
 
-    private void folderLoading(String folder, boolean loading) {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        if (mCurrentFolder != null && mCurrentFolder.equals(folder)) {
-            mCurrentFolder.loading = loading;
-        }
-        updateFooterView();
-    }
-
     public void updateTitle() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         if (!mInitialized) {
@@ -598,23 +590,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         }
 
         setWindowTitle();
-    }
-
-    private void setWindowProgress() {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      /*  int level = Window.PROGRESS_END;
-
-        if (mCurrentFolder != null && mCurrentFolder.loading && mListener.getFolderTotal() > 0) {
-            int divisor = mListener.getFolderTotal();
-            if (divisor != 0) {
-                level = (Window.PROGRESS_END / divisor) * (mListener.getFolderCompleted()) ;
-                if (level > Window.PROGRESS_END) {
-                    level = Window.PROGRESS_END;
-                }
-            }
-        }
-
-        mFragmentListener.setMessageListProgress(level);*/
     }
 
     private void setWindowTitle() {
@@ -636,56 +611,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": position " + position);
         MessageViewHolder holder = (MessageViewHolder) view.getTag();
-
-       /* if (view == mFooterView) {
-            if (mCurrentFolder != null && !mSearch.isManualSearch()) {
-
-                mController.loadMoreMessages(mAccount, mFolderName, null);
-
-            } else if (mCurrentFolder != null && isRemoteSearch() &&
-                    mExtraSearchResults != null && mExtraSearchResults.size() > 0) {
-
-                int numResults = mExtraSearchResults.size();
-                int limit = mAccount.getRemoteSearchNumResults();
-
-                List<Message> toProcess = mExtraSearchResults;
-
-                if (limit > 0 && numResults > limit) {
-                    toProcess = toProcess.subList(0, limit);
-                    mExtraSearchResults = mExtraSearchResults.subList(limit,
-                            mExtraSearchResults.size());
-                } else {
-                    mExtraSearchResults = null;
-                    updateFooter("");
-                }
-
-                mController.loadSearchResults(mAccount, mCurrentFolder.name, toProcess, mListener);
-            }
-
-            return;
-        }
-
-        Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-        if (cursor == null) {
-            return;
-        }
-
-        if (mSelectedCount > 0) {
-            toggleMessageSelect(position);
-        } else {
-            if (mThreadedList && cursor.getInt(THREAD_COUNT_COLUMN) > 1) {
-                Account account = getAccountFromCursor(cursor);
-                long folderId = cursor.getLong(FOLDER_ID_COLUMN);
-                String folderName = getFolderNameById(account, folderId);
-
-                // If threading is enabled and this item represents a thread, display the thread contents.
-                long rootId = cursor.getLong(THREAD_ROOT_COLUMN);
-                mFragmentListener.showThread(account, folderName, rootId);
-            } else {
-                // This item represents a message; just display the message.
-                openMessageAtPosition(listViewToAdapterPosition(position));
-            }
-        }*/
         mHandler.openMessage(holder.db_id);
     }
 
@@ -950,6 +875,13 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
             mHandler.openMessage(mActiveMsgId);*/
     }
 
+    public void setLoadFolder(Folders folder) {
+        if(folder != mCurrentFolder) {
+            mCurrentFolder = folder;
+            restartLoader();
+        }
+    }
+
     private void restartLoader() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
         LoaderManager loaderManager = getLoaderManager();
@@ -1049,21 +981,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
      */
     public void onRemoteSearchRequested() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-     /*   String searchAccount;
-        String searchFolder;
-
-        searchAccount = mAccount.getUuid();
-        searchFolder = mCurrentFolder.name;
-
-        String queryString = mSearch.getRemoteSearchArguments();
-
-        mRemoteSearchPerformed = true;
-        mRemoteSearchFuture = mController.searchRemoteMessages(searchAccount, searchFolder,
-                queryString, null, null, mListener);
-
-        setPullToRefreshEnabled(false);
-
-        mFragmentListener.remoteSearchStarted();*/
     }
 
     /**
@@ -1197,9 +1114,6 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
     public void onExpunge() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-     /*   if (mCurrentFolder != null) {
-            onExpunge(mAccount, mCurrentFolder.name);
-        }*/
     }
 
     private void onExpunge(final Account account, String folderName) {
@@ -1356,30 +1270,11 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
                 return true;
             }
         else if (itemId == R.id.expunge) {
-                //if (mCurrentFolder != null) {
-                    onExpunge(null, null/*mAccount, mCurrentFolder.name*/);
-                //}
                 return true;
             }
         else {
                 return super.onOptionsItemSelected(item);
         }
-        /* DIMA: Change for using in library
-        switch (itemId) {
-        case R.id.send_messages: {
-            onSendPendingMessages();
-            return true;
-        }
-        case R.id.expunge: {
-            if (mCurrentFolder != null) {
-                onExpunge(mAccount, mCurrentFolder.name);
-            }
-            return true;
-        }
-        default: {
-            return super.onOptionsItemSelected(item);
-        }
-        }*/
     }
 
     public void onSendPendingMessages() {
@@ -2145,25 +2040,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
     private void updateFooterView() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        /*if (!mSearch.isManualSearch() && mCurrentFolder != null && mAccount != null) {
-            if (mCurrentFolder.loading) {
-                updateFooter(mContext.getString(R.string.status_loading_more));
-            } else {
-                String message;
-                if (!mCurrentFolder.lastCheckFailed) {
-                    if (mAccount.getDisplayCount() == 0) {
-                        message = mContext.getString(R.string.message_list_load_more_messages_action);
-                    } else {
-                        message = String.format(mContext.getString(R.string.load_more_messages_fmt), mAccount.getDisplayCount());
-                    }
-                } else {
-                    message = mContext.getString(R.string.status_loading_more_failed);
-                }
-                updateFooter(message);
-            }
-        } else {*/
             updateFooter(null);
-        //}
     }
 
     public void updateFooter(final String text) {
@@ -2374,173 +2251,14 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         computeBatchDirection();*/
     }
 
-/*    private void setFlagForSelected(final Flag flag, final boolean newState) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    if (mSelected.size() == 0) {
-        return;
-    }
-
-    Map<Account, List<Long>> messageMap = new HashMap<Account, List<Long>>();
-    Map<Account, List<Long>> threadMap = new HashMap<Account, List<Long>>();
-    Set<Account> accounts = new HashSet<Account>();
-
-    for (int position = 0, end = mAdapter.getCount(); position < end; position++) {
-        Cursor cursor = (Cursor) mAdapter.getItem(position);
-        long uniqueId = cursor.getLong(mUniqueIdColumn);
-
-        if (mSelected.contains(uniqueId)) {
-            String uuid = cursor.getString(ACCOUNT_UUID_COLUMN);
-            Account account = mPreferences.getAccount(uuid);
-            accounts.add(account);
-
-            if (mThreadedList && cursor.getInt(THREAD_COUNT_COLUMN) > 1) {
-                List<Long> threadRootIdList = threadMap.get(account);
-                if (threadRootIdList == null) {
-                    threadRootIdList = new ArrayList<Long>();
-                    threadMap.put(account, threadRootIdList);
-                }
-
-                threadRootIdList.add(cursor.getLong(THREAD_ROOT_COLUMN));
-            } else {
-                List<Long> messageIdList = messageMap.get(account);
-                if (messageIdList == null) {
-                    messageIdList = new ArrayList<Long>();
-                    messageMap.put(account, messageIdList);
-                }
-
-                messageIdList.add(cursor.getLong(ID_COLUMN));
-            }
-        }
-    }
-
-    for (Account account : accounts) {
-        List<Long> messageIds = messageMap.get(account);
-        List<Long> threadRootIds = threadMap.get(account);
-
-        if (messageIds != null) {
-            mController.setFlag(account, messageIds, flag, newState);
-        }
-
-        if (threadRootIds != null) {
-            mController.setFlagForThreads(account, threadRootIds, flag, newState);
-        }
-    }
-
-    computeBatchDirection();
-}
-*/
     private void onMove(Message message) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      //  onMove(Collections.singletonList(message));
     }
 
-    /**
-     * Display the message move activity.
-     *
-     * @param messages
-     *         Never {@code null}.
-     */
-/*    private void onMove(List<Message> messages) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    if (!checkCopyOrMovePossible(messages, FolderOperation.MOVE)) {
-        return;
-    }
-
-    final Folder folder;
-    if (mIsThreadDisplay) {
-        folder = messages.get(0).getFolder();
-    } else if (mSingleFolderMode) {
-        folder = mCurrentFolder.folder;
-    } else {
-        folder = null;
-    }
-
-    Account account = messages.get(0).getFolder().getAccount();
-
-    displayFolderChoice(ACTIVITY_CHOOSE_FOLDER_MOVE, account, folder, messages);
-}
-*/
     private void onCopy(Message message) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      //  onCopy(Collections.singletonList(message));
     }
 
-    /**
-     * Display the message copy activity.
-     *
-     * @param messages
-     *         Never {@code null}.
-     */
-/*    private void onCopy(List<Message> messages) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    if (!checkCopyOrMovePossible(messages, FolderOperation.COPY)) {
-        return;
-    }
-
-    final Folder folder;
-    if (mIsThreadDisplay) {
-        folder = messages.get(0).getFolder();
-    } else if (mSingleFolderMode) {
-        folder = mCurrentFolder.folder;
-    } else {
-        folder = null;
-    }
-
-    displayFolderChoice(ACTIVITY_CHOOSE_FOLDER_COPY, mAccount, folder, messages);
-}
-*/
-    /**
-     * Helper method to manage the invocation of {@link #startActivityForResult(Intent, int)} for a
-     * folder operation ({@link ChooseFolder} activity), while saving a list of associated messages.
-     *
-     * @param requestCode
-     *         If {@code >= 0}, this code will be returned in {@code onActivityResult()} when the
-     *         activity exits.
-     * @param folder
-     *         The source folder. Never {@code null}.
-     * @param messages
-     *         Messages to be affected by the folder operation. Never {@code null}.
-     *
-     * @see #startActivityForResult(Intent, int)
-     */
-/*private void displayFolderChoice(int requestCode, Account account, Folder folder,
-        List<Message> messages) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-
-    Intent intent = new Intent(getActivity(), ChooseFolder.class);
-    intent.putExtra(ChooseFolder.EXTRA_ACCOUNT, account.getUuid());
-    intent.putExtra(ChooseFolder.EXTRA_SEL_FOLDER, account.getLastSelectedFolderName());
-
-    if (folder == null) {
-        intent.putExtra(ChooseFolder.EXTRA_SHOW_CURRENT, "yes");
-    } else {
-        intent.putExtra(ChooseFolder.EXTRA_CUR_FOLDER, folder.getName());
-    }
-
-    // remember the selected messages for #onActivityResult
-    mActiveMessages = messages;
-    startActivityForResult(intent, requestCode);
-}
-
-private void onArchive(final Message message) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
- //   onArchive(Collections.singletonList(message));
-}
-
-private void onArchive(final List<Message> messages) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    Map<Account, List<Message>> messagesByAccount = groupMessagesByAccount(messages);
-
-    for (Entry<Account, List<Message>> entry : messagesByAccount.entrySet()) {
-        Account account = entry.getKey();
-        String archiveFolder = account.getArchiveFolderName();
-
-        if (!K9.FOLDER_NONE.equals(archiveFolder)) {
-            move(entry.getValue(), archiveFolder);
-        }
-    }
-}
-*/
     //DIMA TODO: check if I can use it for grouping conversations
     private Map<Account, List<Message>> groupMessagesByAccount(final List<Message> messages) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
@@ -2782,10 +2500,6 @@ private void onArchive(final List<Message> messages) {
         /**
          * Disables menu options not supported by the account type or current "search view".
          *
-         * @param account
-         *         The account to query for its capabilities.
-         * @param menu
-         *         The menu to adapt.
          */
        /* private void setContextCapabilities(Account account, Menu menu) {
             if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
@@ -2960,26 +2674,6 @@ private void onArchive(final List<Message> messages) {
     @Override
     public void onStop() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-     /*   // If we represent a remote search, then kill that before going back.
-        if (isRemoteSearch() && mRemoteSearchFuture != null) {
-            try {
-                Log.i(K9.LOG_TAG, "Remote search in progress, attempting to abort...");
-                // Canceling the future stops any message fetches in progress.
-                final boolean cancelSuccess = mRemoteSearchFuture.cancel(true);   // mayInterruptIfRunning = true
-                if (!cancelSuccess) {
-                    if (DEBUG) Log.d(K9.LOG_TAG, "Could not cancel remote search future.");
-                }
-                // Closing the folder will kill off the connection if we're mid-search.
-                final Account searchAccount = mAccount;
-                final Folder remoteFolder = mCurrentFolder.folder;
-                remoteFolder.close();
-                // Send a remoteSearchFinished() message for good measure.
-                mListener.remoteSearchFinished(searchAccount, mCurrentFolder.name, 0, null);
-            } catch (Exception e) {
-                // Since the user is going back, log and squash any exceptions.
-                if (DEBUG) Log.d(K9.LOG_TAG, "Could not abort remote search before going back", e);
-            }
-        }*/
         super.onStop();
     }
 
@@ -3349,23 +3043,12 @@ private void onArchive(final List<Message> messages) {
         };
 
         //DIMA TODO: complete sorting functionality
+        //DIMA TODO: add setting flag which folder should be loaded (mCurrentFolder)
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": uri " + uri.toString() + "; sortOrder " + buildSortOrder());
         return new CursorLoader(getActivity(), uri, projection, null, null, null/*buildSortOrder()*/);
     }
-/*
-private String getThreadId(LocalSearch search) {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    for (ConditionsTreeNode node : search.getLeafSet()) {
-        SearchCondition condition = node.mCondition;
-        if (condition.field == Searchfield.THREAD_ID) {
-            return condition.value;
-        }
-    }
 
-    return null;
-}
-*/
     private String buildSortOrder() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": mSortType " + mSortType);
@@ -3442,105 +3125,11 @@ private String getThreadId(LocalSearch search) {
         return true;
     }
 
-    /**
-     * Close the context menu when the message it was opened for is no longer in the message list.
-     */
-    private void updateContextMenu(Cursor cursor) {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      /*  if (mContextMenuUniqueId == 0) {
-            return;
-        }
-
-        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-            long uniqueId = cursor.getLong(mUniqueIdColumn);
-            if (uniqueId == mContextMenuUniqueId) {
-                return;
-            }
-        }
-
-        mContextMenuUniqueId = 0;
-        Activity activity = getActivity();
-        if (activity != null) {
-            activity.closeContextMenu();
-        }*/
-    }
-
-    private void cleanupSelected(Cursor cursor) {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-     /*   if (mSelected.size() == 0) {
-            return;
-        }
-
-        Set<Long> selected = new HashSet<Long>();
-        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-            long uniqueId = cursor.getLong(mUniqueIdColumn);
-            if (mSelected.contains(uniqueId)) {
-                selected.add(uniqueId);
-            }
-        }
-
-        mSelected = selected;*/
-    }
-
-    /**
-     * Starts or finishes the action mode when necessary.
-     */
-    private void resetActionMode() {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      /*  if (mSelected.size() == 0) {
-            if (mActionMode != null) {
-                mActionMode.finish();
-            }
-            return;
-        }
-
-        if (mActionMode == null) {
-            mActionMode = getSherlockActivity().startActionMode(mActionModeCallback);
-        }
-
-        recalculateSelectionCount();
-        updateActionModeTitle();*/
-    }
-
-    /**
-     * Recalculates the selection count.
-     *
-     * <p>
-     * For non-threaded lists this is simply the number of visibly selected messages. If threaded
-     * view is enabled this method counts the number of messages in the selected threads.
-     * </p>
-     */
-    private void recalculateSelectionCount() {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    /*    if (!mThreadedList) {
-            mSelectedCount = mSelected.size();
-            return;
-        }
-
-        mSelectedCount = 0;
-        for (int i = 0, end = mAdapter.getCount(); i < end; i++) {
-            Cursor cursor = (Cursor) mAdapter.getItem(i);
-            long uniqueId = cursor.getLong(mUniqueIdColumn);
-
-            if (mSelected.contains(uniqueId)) {
-                int threadCount = cursor.getInt(THREAD_COUNT_COLUMN);
-                mSelectedCount += (threadCount > 1) ? threadCount : 1;
-            }
-        }*/
-    }
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       //  mSelected.clear();
         mAdapter.swapCursor(null);
-    }
-
-    private Account getAccountFromCursor(Cursor cursor) {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-      /*  String accountUuid = cursor.getString(ACCOUNT_UUID_COLUMN);
-        return mPreferences.getAccount(accountUuid);*/
-        return null;
     }
 
     private void remoteSearchFinished() {
@@ -3597,15 +3186,4 @@ private String getThreadId(LocalSearch search) {
         return false; /* (mAllAccounts || !isSingleAccountMode() || !isSingleFolderMode() ||
                 isRemoteFolder());*/
     }
-/*
-private boolean isCheckMailAllowed() {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    return false; // (!isManualSearch() && isCheckMailSupported());
-}
-
-private boolean isPullToRefreshAllowed() {
-    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-    return false; // (isRemoteSearchAllowed() || isCheckMailAllowed());
-}
-    */
 }

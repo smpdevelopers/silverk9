@@ -179,7 +179,16 @@ public class MessageList extends K9FragmentActivity implements MessageListFragme
     public boolean onNavigationItemSelected(int itemPosition, long itemId) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": itemPosition " + itemPosition + "; itemId " + itemId);
+        MessageListFragment.Folders folder;
+        if(itemId == 0) {
+            folder = MessageListFragment.Folders.INBOX;
+        }
+        else {
+            folder = MessageListFragment.Folders.SENT;
+        }
 
+        mMessageListFragment.setLoadFolder(folder);
+        showHoldMessage();
         return false;
     }
 
