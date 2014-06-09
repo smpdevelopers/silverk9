@@ -67,7 +67,6 @@
             android:paddingBottom="6dp">
 
         <TextView
-                android:text="preview"
                 android:id="@+id/preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,7 +96,6 @@
                 android:layout_toLeftOf="@+id/date">
 
             <TextView
-                    android:text="sender_compact"
                     android:id="@+id/sender_compact"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
@@ -111,7 +109,6 @@
                     />
 
             <TextView
-                    android:text="subject"
                     android:id="@+id/subject"
                     android:layout_width="0dp"
                     android:layout_weight="0.7"
@@ -140,7 +137,12 @@
                 />
 
         <TextView
-                android:text="date"
+            android:id="@+id/db_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

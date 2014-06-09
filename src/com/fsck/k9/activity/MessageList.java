@@ -844,20 +844,19 @@ public class MessageList extends K9FragmentActivity implements MessageListFragme
             mMessageViewContainer.removeAllViews();
         }
 
-            if (mMessageListFragment != null) {
-                mMessageListFragment.setSelectedMsgId(id);
-            }
+        if (mMessageListFragment != null) {
+            mMessageListFragment.setSelectedMsgId(id);
+        }
 
-            MessageViewFragment fragment = MessageViewFragment.newInstance(id);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.message_view_container, fragment);
-            mMessageViewFragment = fragment;
-            ft.commit();
+        MessageViewFragment fragment = MessageViewFragment.newInstance(id);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.message_view_container, fragment);
+        mMessageViewFragment = fragment;
+        ft.commit();
 
-            if (mDisplayMode != DisplayMode.SPLIT_VIEW) {
-                showMessageView();
-            }
-    //    }
+        if (mDisplayMode != DisplayMode.SPLIT_VIEW) {
+            showMessageView();
+        }
     }
 
     @Override
@@ -1098,6 +1097,13 @@ public class MessageList extends K9FragmentActivity implements MessageListFragme
     }
 
     @Override
+    public void showHoldMessage() {
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+        mMessageId = null;
+        showMessageViewPlaceHolder();
+    }
+
+    @Override
     public void showNextMessageOrReturn() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
       /*  if (K9.messageViewReturnToList() || !showLogicalNextMessage()) {
@@ -1202,7 +1208,7 @@ public class MessageList extends K9FragmentActivity implements MessageListFragme
     @Override
     public void disableDeleteAction() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-       // mMenu.findItem(R.id.delete).setEnabled(false);
+        mMenu.findItem(R.id.delete).setEnabled(false);
     }
 
     private void onToggleTheme() {

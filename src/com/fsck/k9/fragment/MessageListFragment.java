@@ -2,6 +2,8 @@ package com.fsck.k9.fragment;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -488,7 +490,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         public void openMessage(Integer id) {
             if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
             android.os.Message msg = android.os.Message.obtain(this, ACTION_OPEN_MESSAGE,
-                    id/*messageReference*/);
+                    id);
             sendMessage(msg);
         }
 
@@ -618,7 +620,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     private void setWindowTitle() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
-        mFragmentListener.setUnreadCount(-1);//mUnreadMessageCount);
+        mFragmentListener.setUnreadCount(mUnreadMessageCount);
     }
 
     private void progress(final boolean progress) {
@@ -633,6 +635,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": position " + position);
+        MessageViewHolder holder = (MessageViewHolder) view.getTag();
 
        /* if (view == mFooterView) {
             if (mCurrentFolder != null && !mSearch.isManualSearch()) {
@@ -683,7 +686,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
                 openMessageAtPosition(listViewToAdapterPosition(position));
             }
         }*/
-        mHandler.openMessage(position);
+        mHandler.openMessage(holder.db_id);
     }
 
     @Override
@@ -1395,14 +1398,14 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         if (adapterPosition == AdapterView.INVALID_POSITION) {
             return false;
         }
-
+/*
         if (item.getItemId() == R.id.deselect) {
-            toggleMessageSelectWithAdapterPosition(adapterPosition, false);
+            toggleMessageSelectWithAdapterPosition(a dapterPosition, false);
         }
         if (item.getItemId() == R.id.select) {
-                toggleMessageSelectWithAdapterPosition(adapterPosition, true);
+                toggleMessageSelectWithAdapterPosition(a dapterPosition, true);
         }
-        else if (item.getItemId() == R.id.reply) {
+        else */if (item.getItemId() == R.id.reply) {
                 Message message = getMessageAtPosition(adapterPosition);
                 onReply(message);
         }
@@ -1752,18 +1755,18 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
 
 
             if (mPreviewLines == 0 && mContactsPictureLoader == null) {
-                //view.findViewById(R.id.preview).setVisibility(View.GONE);
+                view.findViewById(R.id.preview).setVisibility(View.GONE);
                 holder.preview = (TextView) view.findViewById(R.id.sender_compact);
                 holder.flagged = (CheckBox) view.findViewById(R.id.flagged_center_right);
-                //view.findViewById(R.id.flagged_bottom_right).setVisibility(View.GONE);
+                view.findViewById(R.id.flagged_bottom_right).setVisibility(View.GONE);
 
 
 
             } else {
-                //view.findViewById(R.id.sender_compact).setVisibility(View.GONE);
+                view.findViewById(R.id.sender_compact).setVisibility(View.GONE);
                 holder.preview = (TextView) view.findViewById(R.id.preview);
                 holder.flagged = (CheckBox) view.findViewById(R.id.flagged_bottom_right);
-                //view.findViewById(R.id.flagged_center_right).setVisibility(View.GONE);
+                view.findViewById(R.id.flagged_center_right).setVisibility(View.GONE);
 
             }
 
@@ -1810,9 +1813,11 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+
             if(true) {
                 if (DEBUG) Log.d("MessageListFragment", "bindView: cursor id " + cursor.getString(0));
             }
+
 
 /*            view.setBackgroundColor(Color.WHITE);
             MessageViewHolder holder = (MessageViewHolder) view.getTag();
@@ -1827,7 +1832,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
             holder.contactBadge.setImageResource(R.drawable.ic_contact_picture);
             holder.threadCount.setVisibility(View.GONE);
             CharSequence beforePreviewText = (mSenderAboveSubject) ? "subject" : "displayName";
-            String sigil = recipientSigil(true, false);
+            String sigil = recipient`Sigil(true, false);
             SpannableStringBuilder messageStringBuilder = new SpannableStringBuilder(sigil)
                     .append(beforePreviewText);
             if (mPreviewLines > 0) {
@@ -1937,6 +1942,10 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
             boolean hasAttachments = (cursor.getInt(ATTACHMENT_COUNT_COLUMN) > 0);
 */
             MessageViewHolder holder = (MessageViewHolder) view.getTag();
+            holder.db_id = cursor.getInt(0);//id
+            holder.preview.setText(cursor.getString(1) + " is preview");//name
+            holder.flagged.setChecked((cursor.getInt(3) == 1));//flagged
+
 /*
             int maybeBoldTypeface = (read) ? Typeface.NORMAL : Typeface.BOLD;
 
@@ -1974,10 +1983,9 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
             }
 */
 
-            //DIMA TODO: add coloring items by selected\read\common
             // Background color
             int res;
-            if(null != mActiveMsgId && cursor.getPosition() +1 == mActiveMsgId) {
+            if(null != mActiveMsgId && cursor.getInt(0) == mActiveMsgId) {
             res = R.attr.messageListSelectedBackgroundColor;
             } else {
                 res = R.attr.messageListUnreadItemBackgroundColor;
@@ -2093,6 +2101,7 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         public CheckBox flagged;
         public CheckBox selected;
         public int position = -1;
+        public int db_id = -1;
         public QuickContactBadge contactBadge;
         @Override
         public void onClick(View view) {
@@ -2103,30 +2112,19 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
                if (view.getId() == R.id.selected_checkbox) {
                    CheckBox checkBox = (CheckBox)view;
 
-                   toggleMessageSelectWithAdapterPosition(position, checkBox.isChecked());
+                   toggleMessageSelectWithAdapterPosition(db_id, checkBox.isChecked());
                }
                else if (view.getId() == R.id.flagged_bottom_right ||
                         view.getId() == R.id.flagged_center_right) {
                    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                    + ": flagged button " + (view.getId() == R.id.flagged_bottom_right ? "bottom" : "center"));
                    CheckBox checkBox = (CheckBox) view;
-                   toggleMessageFlagWithAdapterPosition(position, checkBox.isChecked());
+                   toggleMessageFlagWithAdapterPosition(db_id, checkBox.isChecked());
                }
                else {
                    if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                            + ": view Id hasn't been matched " + view.getId());
                }
-
-                /* DIMA: Change for using in library
-                switch (view.getId()) {
-                    case R.id.selected_checkbox:
-                        toggleMessageSelectWithAdapterPosition(position);
-                        break;
-                    case R.id.flagged_bottom_right:
-                    case R.id.flagged_center_right:
-                        toggleMessageFlagWithAdapterPosition(position);
-                        break;
-                }*/
             }
         }
     }
@@ -2247,18 +2245,19 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         toggleMessageSelectWithAdapterPosition(adapterPosition);*/
     }
 
-    private void toggleMessageFlagWithAdapterPosition(int adapterPosition, boolean isChecked) {
+    private void toggleMessageFlagWithAdapterPosition(int db_id, boolean isChecked) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-        + ": adapterPosition " + adapterPosition + "; isChecked " + isChecked);
+        + ": db_id " + db_id + "; isChecked " + isChecked);
      /*   Cursor cursor = (Cursor) mAdapter.getItem(adapterPosition);
         boolean flagged = (cursor.getInt(FLAGGED_COLUMN) == 1);
 */
-        setFlag(adapterPosition,Flag.FLAGGED, isChecked/*!flagged*/);
+        setFlag(db_id, Flag.FLAGGED, isChecked);
     }
 
-    private void toggleMessageSelectWithAdapterPosition(int adapterPosition, boolean isChecked) {
+    private void toggleMessageSelectWithAdapterPosition(int db_id, boolean isChecked) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-         + ": adapterPosition " + adapterPosition + "; isChecked " + isChecked);
+         + ": db_id " + db_id + "; isChecked " + isChecked);
+        //DIMA TODO: write to DB changes
     /*    Cursor cursor = (Cursor) mAdapter.getItem(adapterPosition);
         long uniqueId = cursor.getLong(mUniqueIdColumn);
 
@@ -2344,8 +2343,17 @@ private static final int ACTIVITY_CHOOSE_FOLDER_COPY = 2;
         mActionModeCallback.showFlag(isBatchFlag);*/
     }
 
-    private void setFlag(int adapterPosition, final Flag flag, final boolean newState) {
+    private void setFlag(int db_id, final Flag flag, final boolean newState) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
+
+        if(Flag.FLAGGED == flag) {
+            Uri updateUri = ContentUris.withAppendedId(MessagerProvider.CONTENT_URI, db_id);
+            ContentValues updateValue = new ContentValues();
+            updateValue.put(MessagerProvider.FLAGGED, newState == true ? "1" : "0");
+            getActivity().getContentResolver().update(updateUri, updateValue, null, null);
+        }
+
+        //DIMA TODO: change DB
       /*  if (adapterPosition == AdapterView.INVALID_POSITION) {
             return;
         }
@@ -3111,7 +3119,7 @@ private void onArchive(final List<Message> messages) {
         void onForward(Message message);
         void onReply(Message message);
         void onReplyAll(Message message);
-        void openMessage(Integer id/*MessageReference messageReference*/);
+        void openMessage(Integer id);
         void setMessageListTitle(String title);
         void setMessageListSubTitle(String subTitle);
         void setUnreadCount(int unread);
@@ -3332,12 +3340,12 @@ private void onArchive(final List<Message> messages) {
 
         mContext.getContentResolver().registerContentObserver(MessagerProvider.CONTENT_URI, true,
                 mContentObserver);
-
         Uri uri = MessagerProvider.CONTENT_URI;
         String[] projection = new String[] {
                 MessagerProvider.ID,
                 MessagerProvider.NAME,
-                MessagerProvider.BIRTHDAY
+                MessagerProvider.BIRTHDAY,
+                MessagerProvider.FLAGGED
         };
 
         //DIMA TODO: complete sorting functionality
@@ -3411,11 +3419,21 @@ private String getThreadId(LocalSearch search) {
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": loaderId " + loader.getId() + " data: " + data);
+        mUnreadMessageCount = 0;
         mAdapter.changeCursor(data);
         mAdapter.notifyDataSetChanged();
 
-        //DIMA TODO: recalculate unread message count
-
+        if(data == null || !data.moveToFirst()) {
+            if (DEBUG)
+                Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                        + ": cursor is empty");
+        }
+        else {
+            do {
+                if(data.getInt(3) == 1) //DIMA TODO: should be replaced to unread column
+                    mUnreadMessageCount++;
+            } while(data.moveToNext());
+        }
         updateTitle();
     }
 
@@ -3538,7 +3556,7 @@ private String getThreadId(LocalSearch search) {
      * view.
      * </p>
      */
-    public void setSelectedMsgId(Integer id/*MessageReference messageReference*/) {
+    public void setSelectedMsgId(Integer id) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
         + ": messageReference " + id);
         mActiveMsgId = id;

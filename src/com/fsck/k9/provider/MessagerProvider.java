@@ -17,6 +17,9 @@ import android.util.Log;
 import java.util.HashMap;
 
 public class MessagerProvider extends ContentProvider {
+    private final static boolean DEBUG = true;
+    private final static String TAG = "MessageProvider";
+
             // fields for my content provider
     static final String PROVIDER_NAME = "com.fsck.k9.Messager";
     static final String URL = "content://" + PROVIDER_NAME + "/friends";
@@ -26,6 +29,7 @@ public class MessagerProvider extends ContentProvider {
     public static final String ID = "_id";
     public static final String NAME = "name";
     public static final String BIRTHDAY = "birthday";
+    public static final String FLAGGED = "flagged";
 
             // integer values used in content URI
     static final int FRIENDS = 1;
@@ -53,7 +57,8 @@ public class MessagerProvider extends ContentProvider {
             " CREATE TABLE " + TABLE_NAME +
             " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             NAME + " TEXT NOT NULL, " +
-            BIRTHDAY + " TEXT NOT NULL);";
+            FLAGGED + " TEXT NOT NULL, " +
+            BIRTHDAY + " TEXT NOT NULL" + ");";
 
 
             // class that creates and manages the provider's database
@@ -68,6 +73,7 @@ public class MessagerProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             // TODO Auto-generated method stub
             db.execSQL(CREATE_TABLE);
+            Log.e("MESSAGER PROVIDER", "onCreate: \n" + CREATE_TABLE);
         }
 
         @Override
@@ -171,12 +177,15 @@ public class MessagerProvider extends ContentProvider {
         // TODO Auto-generated method stub
         int count = 0;
 
+
         switch (uriMatcher.match(uri)){
             case FRIENDS:
+                if (DEBUG) Log.d(TAG, "delete: all. uri: " + uri.toString());
                 // delete all the records of the table
                 count = database.delete(TABLE_NAME, selection, selectionArgs);
                 break;
             case FRIENDS_ID:
+                if (DEBUG) Log.d(TAG, "delete: id. uri: " + uri.toString());
                 String id = uri.getLastPathSegment(); //gets the id
                 count = database.delete( TABLE_NAME, ID +  " = " + id +
                 (!TextUtils.isEmpty(selection) ? " AND (" +

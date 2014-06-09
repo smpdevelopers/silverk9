@@ -1,8 +1,11 @@
 package com.fsck.k9.fragment;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -26,9 +29,11 @@ import com.fsck.k9.fragment.ConfirmationDialogFragment.ConfirmationDialogFragmen
 import com.fsck.k9.mail.Flag;
 import com.fsck.k9.mail.Message;
 import com.fsck.k9.mail.Part;
+import com.fsck.k9.provider.MessagerProvider;
 import com.fsck.k9.view.MessageHeader;
 import com.fsck.k9.view.SingleMessageView;
 
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -52,7 +57,7 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
 
     private SingleMessageView mMessageView;
 
-    private Integer mMsgId;
+    private Integer mDb_msg_Id;
     private Message mMessage;
 
     //private Listener mListener = new Listener();
@@ -169,32 +174,36 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
 
         Bundle args = getArguments();
-        //MessageReference messageReference;
-        //messageReference = new MessageReference(args.getInt(ARG_MSG_ID));
-
         displayMessage(args.getInt(ARG_MSG_ID));
     }
 
-    private void displayMessage(Integer msgId) {
+    private void displayMessage(Integer db_msg_id) {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
-        + ": msgId " + msgId);
-        mMsgId = msgId;
+        + ": db_msg_id " + db_msg_id);
+        mDb_msg_Id = db_msg_id;
 
         // Clear previous message
         mMessageView.resetView();
         mMessageView.resetHeaderView();
 
+
+        Uri itemUri = ContentUris.withAppendedId(MessagerProvider.CONTENT_URI, mDb_msg_Id);
+        Cursor cursor = getActivity().getContentResolver().query(itemUri, null, null, null, null);
+        if(cursor == null || !cursor.moveToFirst()) {
+            Log.e(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+                    + ": got invalid cursor. Skipping...");
+            mFragmentListener.showHoldMessage();
+            return;
+        }
+
+        //DIMA TODO: load Data from DB
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
                 + ": set messages which should be shown!!!!!");
         String text = "<img src=\"http://www.w3schools.com/images/pulpit.jpg\" alt=\"Smiley face\" width=\"200\" height=\"200\">";
         mMessageView.showStatusMessage(text);
-        mMessageView.setDefaultHeaders();
-        mMessageView.setHeaders();
-       // if (subject == null || subject.equals("")) {
-        displayMessageSubject(mContext.getString(R.string.general_no_subject));
-      /*  } else {
-            displayMessageSubject(clonedMessage.getSubject());
-        }*/
+        //DIMA TODO: change getting data from cursor
+        mMessageView.setHeaders(cursor.getString(1), "from", "to", new Date().getTime(), false, false, false);
+
         mMessageView.setOnFlagListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -216,13 +225,15 @@ public class MessageViewFragment extends SherlockFragment implements Confirmatio
 
     private void delete() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        if (mMessage != null) {
+        if (mDb_msg_Id != null) {
             // Disable the delete button after it's tapped (to try to prevent
             // accidental clicks)
             mFragmentListener.disableDeleteAction();
-            Message messageToDelete = mMessage;
-            mFragmentListener.showNextMessageOrReturn();
-            //mController.deleteMessages(Collections.singletonList(messageToDelete), null);
+
+            Uri deleteUri = ContentUris.withAppendedId(MessagerProvider.CONTENT_URI, mDb_msg_Id);
+            getActivity().getContentResolver().delete(deleteUri, null, null);
+            //DIMA TODO: add removing selected msgId!!!! May be showHoldMessage wont be shown
+            mFragmentListener.showHoldMessage();
         }
     }
 
@@ -714,7 +725,7 @@ public void onDecryptDone(PgpData pgpData) {
      * Get the {@link java.lang.Integer} of the currently displayed message.
      */
     public Integer getMsgId() {
-        return mMsgId;
+        return mDb_msg_Id;
     }
 
     public boolean isMessageRead() {
@@ -759,6 +770,7 @@ public void onDecryptDone(PgpData pgpData) {
         public void displayMessageSubject(String title);
         public void setProgress(boolean b);
         public void showNextMessageOrReturn();
+        public void showHoldMessage();
         public void messageHeaderViewAvailable(MessageHeader messageHeaderView);
         public void updateMenu();
     }

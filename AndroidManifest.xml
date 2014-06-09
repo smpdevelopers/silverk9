@@ -409,7 +409,7 @@ otherwise it would make K-9 start at the wrong time
             />
         <provider
             android:authorities="com.fsck.k9.Messager"
-            android:name=".provider.MessagerProvider"
+            android:name="com.fsck.k9.provider.MessagerProvider"
             />
         <provider
             android:name=".provider.EmailProvider"

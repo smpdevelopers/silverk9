@@ -444,18 +444,15 @@ private static final String[] ATTACHMENT_PROJECTION = new String[] {
 
     public void setDefaultHeaders() {
         if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        mHeaderContainer.populateDefault();
         mHeaderContainer.setVisibility(View.VISIBLE);
     }
 
-    public void setHeaders(final String subject, final String from, final String to, final long date, boolean isFlagged) {
-        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName());
-        try {
-            mHeaderContainer.setVisibility(View.VISIBLE);
-
-        } catch (Exception me) {
-            if (DEBUG) Log.d(K9.LOG_TAG, "setHeaders - error", me);
-        }
+    public void setHeaders(String subject, String from, String to, long date, boolean isFlagged,
+                           boolean isAnswered, boolean isForwarded) {
+        if (DEBUG) Log.d(Thread.currentThread().getStackTrace()[2].getClassName(), Thread.currentThread().getStackTrace()[2].getMethodName()
+        + "2");
+        mHeaderContainer.populate(subject, from, to, date, isFlagged, isAnswered, isForwarded);
+        mHeaderContainer.setVisibility(View.VISIBLE);
     }
 
     public void setHeaders(final Message message, Account account) {

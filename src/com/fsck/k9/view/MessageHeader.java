@@ -34,7 +34,6 @@ import com.fsck.k9.mail.Message;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.internet.MimeUtility;
 
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -225,44 +224,8 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
 
     }
 
-    public void populateDefault() {
-
-        mContactBadge.setVisibility(View.VISIBLE);
-
-        //mContactsPictureLoader = ContactPicture.getContactPictureLoader(mContext);
-
-        mSubjectView.setText(mContext.getText(R.string.general_no_subject));
-        mSubjectView.setTextColor(0xff000000 | defaultSubjectColor);
-
-        String dateTime = DateUtils.formatDateTime(mContext,
-                new Date().getTime()
-                /*message.getSentDate().getTime()*/,
-                DateUtils.FORMAT_SHOW_DATE
-                        | DateUtils.FORMAT_ABBREV_ALL
-                        | DateUtils.FORMAT_SHOW_TIME
-                        | DateUtils.FORMAT_SHOW_YEAR);
-        mDateView.setText(dateTime);
-
-        mContactBadge.setImageResource(R.drawable.ic_contact_picture);
-
-        mFromView.setText(from);
-
-        updateAddressField(mToView, to, mToLabel);
-        //DIMA TODO: add showing if message answered\forwarded if need
-        //updateAddressField(mCcView, cc, mCcLabel);
-        mAnsweredIcon.setVisibility(/*View.VISIBLE*/View.GONE);
-        mForwardedIcon.setVisibility(/*View.VISIBLE*/View.GONE);
-        //DIMA TODO: add currect checking flag
-        mFlagged.setChecked(true/*message.isSet(Flag.FLAGGED)*/);
-
-        mChip.setBackgroundColor(Color.WHITE/*mAccount.getChipColor()*/);
-
-        setVisibility(View.VISIBLE);
-
-        showAdditionalHeaders();
-    }
-
-    public void polulate(final String subject, final String from, final String to, final long date, final boolean isFlagged) {
+    public void populate(final String subject, final String from, final String to, final long date, final boolean isFlagged,
+                         final boolean isAnswered, final boolean isForwarded) {
         mSubjectView.setVisibility(VISIBLE);
 
         if (K9.showContactPicture()) {
@@ -287,24 +250,24 @@ public class MessageHeader extends LinearLayout implements OnClickListener {
                         | DateUtils.FORMAT_SHOW_YEAR);
         mDateView.setText(dateTime);
 
-        if (K9.showContactPicture()) {
+       /* if (K9.showContactPicture()) {
             if (counterpartyAddress != null) {
                 mContactBadge.assignContactFromEmail(counterpartyAddress.getAddress(), true);
                 mContactsPictureLoader.loadContactPicture(counterpartyAddress, mContactBadge);
-            } else {
+            } else {*/
                 mContactBadge.setImageResource(R.drawable.ic_contact_picture);
-            }
-        }
+       /*     }
+        }*/
 
         mFromView.setText(from);
 
         updateAddressField(mToView, to, mToLabel);
-        updateAddressField(mCcView, cc, mCcLabel);
-        mAnsweredIcon.setVisibility(message.isSet(Flag.ANSWERED) ? View.VISIBLE : View.GONE);
-        mForwardedIcon.setVisibility(message.isSet(Flag.FORWARDED) ? View.VISIBLE : View.GONE);
-        mFlagged.setChecked(message.isSet(Flag.FLAGGED));
+        updateAddressField(mCcView, null, mCcLabel);
+        mAnsweredIcon.setVisibility(isAnswered ? View.VISIBLE : View.GONE);
+        mForwardedIcon.setVisibility(isForwarded ? View.VISIBLE : View.GONE);
+        mFlagged.setChecked(isFlagged);
 
-        mChip.setBackgroundColor(mAccount.getChipColor());
+        mChip.setBackgroundColor(Color.WHITE);
 
         setVisibility(View.VISIBLE);
 
